@@ -1,191 +1,150 @@
-## 🚀 𝐃𝐞𝐩𝐥𝐨𝐲𝐦𝐞𝐧𝐭 𝐆𝐮𝐢𝐝𝐞
 
-<details>
-<summary><b>📦 𝐕𝐏𝐒 𝐃𝐞𝐩𝐥𝐨𝐲𝐦𝐞𝐧𝐭 (𝐂𝐥𝐢𝐜𝐤 𝐭𝐨 𝐄𝐱𝐩𝐚𝐧𝐝)</b></summary>
-
-<br>
-
-### **𝐒𝐭𝐞𝐩 𝟏: 𝐔𝐩𝐝𝐚𝐭𝐞 𝐒𝐲𝐬𝐭𝐞𝐦**
-
-```bash
-sudo apt-get update && sudo apt-get upgrade -y
-```
-
----
-
-### **𝐒𝐭𝐞𝐩 𝟐: 𝐈𝐧𝐬𝐭𝐚𝐥𝐥 𝐑𝐞𝐪𝐮𝐢𝐫𝐞𝐝 𝐏𝐚𝐜𝐤𝐚𝐠𝐞𝐬**
-
-```bash
-sudo apt-get install python3 python3-pip ffmpeg git screen curl -y
-```
-
----
-
-### **𝐒𝐭𝐞𝐩 𝟑: 𝐈𝐧𝐬𝐭𝐚𝐥𝐥 𝐍𝐨𝐝𝐞.𝐣𝐬**
-
-```bash
-curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
-```
-
-```bash
-sudo apt-get install -y nodejs
-```
-
----
-
-### **𝐒𝐭𝐞𝐩 𝟒: 𝐂𝐥𝐨𝐧𝐞 𝐑𝐞𝐩𝐨𝐬𝐢𝐭𝐨𝐫𝐲**
-
-```bash
-git clone https://github.com/NoxxOP/ShrutiMusic
-```
-
-```bash
-cd ShrutiMusic
-```
-
----
-
-### **𝐒𝐭𝐞𝐩 𝟓: 𝐂𝐫𝐞𝐚𝐭𝐞 𝐒𝐜𝐫𝐞𝐞𝐧 𝐒𝐞𝐬𝐬𝐢𝐨𝐧**
-
-```bash
-screen
-```
-
-**𝐍𝐨𝐭𝐞:** Press `Ctrl+A` then `D` to detach screen
-
-**𝐓𝐨 𝐑𝐞𝐚𝐭𝐭𝐚𝐜𝐡:**
-```bash
-screen -ls
-```
-```bash
-screen -r {screen_id}
-```
-
----
-
-### **𝐒𝐭𝐞𝐩 𝟔: 𝐈𝐧𝐬𝐭𝐚𝐥𝐥 𝐕𝐢𝐫𝐭𝐮𝐚𝐥 𝐄𝐧𝐯𝐢𝐫𝐨𝐧𝐦𝐞𝐧𝐭 𝐏𝐚𝐜𝐤𝐚𝐠𝐞**
-
-```bash
-sudo apt-get install python3-venv -y
-```
-
----
-
-### **𝐒𝐭𝐞𝐩 𝟕: 𝐂𝐫𝐞𝐚𝐭𝐞 𝐕𝐢𝐫𝐭𝐮𝐚𝐥 𝐄𝐧𝐯𝐢𝐫𝐨𝐧𝐦𝐞𝐧𝐭**
-
-```bash
-python3 -m venv venv
-```
-
-```bash
-source venv/bin/activate
-```
-
----
-
-### **𝐒𝐭𝐞𝐩 𝟖: 𝐈𝐧𝐬𝐭𝐚𝐥𝐥 𝐏𝐲𝐭𝐡𝐨𝐧 𝐃𝐞𝐩𝐞𝐧𝐝𝐞𝐧𝐜𝐢𝐞𝐬**
-
-```bash
-pip3 install -U pip
-```
-
-```bash
-pip3 install -U -r requirements.txt
-```
-
----
-
-### **𝐒𝐭𝐞𝐩 𝟗: 𝐂𝐨𝐧𝐟𝐢𝐠𝐮𝐫𝐚𝐭𝐢𝐨𝐧**
-
-```bash
-nano .env
-```
-
-**𝐅𝐢𝐥𝐥 𝐢𝐧 𝐲𝐨𝐮𝐫 𝐯𝐚𝐫𝐢𝐚𝐛𝐥𝐞𝐬:**
-
-- `API_ID` & `API_HASH` - Get from [my.telegram.org](https://my.telegram.org)
-- `BOT_TOKEN` - Get from [@BotFather](https://t.me/BotFather)
-- `MONGO_DB_URI` - MongoDB Atlas connection string
-- `OWNER_ID` - Your Telegram user ID
-- `STRING_SESSION` - Generate using [@Sessionbbbot](https://t.me/Sessionbbbot)
-- `LOG_GROUP_ID` - Log group/channel ID (starting with -100)
-- `SUPPORT_GROUP` - Your support group link
-- `SUPPORT_CHANNEL` - Your support channel link
-
-**Save:** `Ctrl+X` then `Y` then `Enter`
-
----
-
-### **𝐒𝐭𝐞𝐩 𝟏𝟎: 𝐒𝐭𝐚𝐫𝐭 𝐁𝐨𝐭**
-
-**𝐌𝐞𝐭𝐡𝐨𝐝 𝟏:**
-```bash
-python3 -m ShrutiMusic
-```
-
-**𝐌𝐞𝐭𝐡𝐨𝐝 𝟐:**
-```bash
-bash start
-```
-
-**𝐃𝐞𝐭𝐚𝐜𝐡 𝐒𝐜𝐫𝐞𝐞𝐧:** `Ctrl+A` then `D`
-
-</details>
-
----
 
 <p align="center">
-<a href="https://t.me/mvtyy"> <img src="https://img.shields.io/badge/𝐋𝚄𝙲𝙺𝚈 𝐑𝙰𝙹𝙰-darkred?style=for-the-badge&logo=telegram" alt="PritiMusic" /> </a>
+  <img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif">
+</p>
+
+<h1 align="center">🎵 Telegram Music Bot API</h1>
+<p align="center">
+  Stream Audio & Video in your Telegram Music Bots — fast, secure, and cookie-free.
+</p>
+<p align="center">
+  <img src="https://img.shields.io/badge/license-Commercial-red.svg" alt="License Badge">
 </p>
 
 ---
 
-### 🔧 Quick Setup
+## 🚀 Overview
 
-1. **Upgrade & Update:**
-   ```bash
-   sudo apt-get update && sudo apt-get upgrade -y
-   ```
-
-2. **Install Required Packages:**
-   ```bash
-   sudo apt-get install python3-pip ffmpeg -y
-   ```
-3. **Setting up PIP**
-   ```bash
-   sudo pip3 install -U pip
-   ```
-4. **Installing Node**
-   ```bash
-   curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash && source ~/.bashrc && nvm install v18
-   ```
-5. **Clone the Repository**
-   ```bash
-   git clone https://github.com/Im-NotCoder/PtaHai && cd PtaHai
-   ```
-6. **Install Requirements**
-   ```bash
-   pip3 install -U -r requirements.txt
-   ```
-7. **Create .env  with sample.env**
-   ```bash
-   cp sample.env .env
-   ```
-   - Edit .env with your vars
-8. **Editing Vars:**
-   ```bash
-   vi .env
-   ```
-   - Edit .env with your values.
-   - Press `I` button on keyboard to start editing.
-   - Press `Ctrl + C`  once you are done with editing vars and type `:wq` to save .env or `:qa` to exit editing.
-9. **Installing tmux**
-    ```bash
-    sudo apt install tmux -y && tmux
-    ```
-10. **Run the Bot**
-    ```bash
-    bash start
-    ```
+Introducing a **robust API** for Telegram Music Bots that allows **audio & video playback** with **zero cookies** and **minimal errors**. This API is designed for **developers, music bot owners**, and anyone building scalable music systems on Telegram.
 
 ---
+
+## ✨ Features
+
+- ✅ Audio & Video Streaming Support  
+- ✅ Cookie-free & Error-free Playback  
+- ✅ API Key Based Access  
+- ✅ Flexible Rate Limits  
+- ✅ Affordable Monthly Plans  
+- ✅ Easy Integration (Python, Node.js, C++, etc.)
+
+---
+
+## 💰 Pricing & Plans
+
+| 💼 Plan        | ⚡ Rate Limit         | ♾️ Usage     | 💵 Price (INR/month) | 🔑 Access Type    |
+|---------------|-----------------------|-------------|----------------------|------------------|
+| 🟢 **Lite**      | 3000 requests/day     | per month    | ₹99                  | API_KEY          |
+| 🔵 **Basic**     | 5000 requests/day     | per month    | ₹179                 | API_KEY          |
+| 🟣 **Pro**       | 10000 requests/day    | per month    | ₹349                 | API_KEY          |
+| 🔴 **Ultra pro** | 20000 requests/day    | per month    | ₹699                 | API_KEY          |
+
+> **Note:** API keys are unique to each user. The Unlimited plan is tied to a single IP address.
+
+---
+
+
+
+## ⚙️ API Usage
+
+**Base Endpoint**
+
+🔑 API Access Key
+
+Contact US [𝐀𝐏𝐈 𝐚𝐧𝐝 𝐩𝐫𝐨𝐦𝐨𝐭𝐢𝐨𝐧](https://t.me/Api_and_promotion)
+
+> Online Documentation: https://tgapi.xbitcode.com/docs
+> Get your API key from :[ https://t.me/tgmusic_apibot](https://t.me/tgmusic_apibot)
+> Use your key in config.py
+> API key patter: xbit_10000000xx0233
+
+
+---
+
+## ⚡️ Getting Started [[Documentation](https://stranger-organization.gitbook.io/stranger-music-docs/local-vps-deploy)]
+
+---
+
+📞 Contact & Support
+
+Need help or want to subscribe?
+
+Telegram:[𝐀𝐏𝐈 𝐚𝐧𝐝 𝐩𝐫𝐨𝐦𝐨𝐭𝐢𝐨𝐧](https://t.me/Api_and_promotion)
+
+
+---
+
+⚠️ Disclaimer
+
+This service is intended for personal and educational use.
+Users must follow YouTube’s Terms of Service and Telegram’s Bot Policy.
+
+
+---
+
+<h2 align="center">
+    ──「 Telegram Music Bot 」──
+</h2>
+
+
+<h3 align="center">
+    ─「 ᴅᴇᴩʟᴏʏ ᴏɴ ʜᴇʀᴏᴋᴜ 」─
+</h3>
+
+<p align="center"><a href="https://dashboard.heroku.com/new?template=https://github.com/shivashish44/AARU-BABY-MUSIC"> <img src="https://img.shields.io/badge/Deploy%20On%20Heroku-purple?style=for-the-badge&logo=heroku" width="220" height="38.45"/></a></p>
+
+<h3 align="center">
+    ─「 ᴅᴇᴩʟᴏʏ ᴏɴ ʟᴏᴄᴀʟ ʜᴏsᴛ/ ᴠᴘs 」─
+</h3>
+
+- Get your [Necessary Variables](https://github.com/THE-SHIV-OFFICIAL/CLONE-TRIAL/blob/main/sample.env)
+- Upgrade and Update by :
+`sudo apt-get update && sudo apt-get upgrade -y`
+- Install Ffmpeg by :
+`sudo apt-get install python3-pip ffmpeg -y`
+- Install required packages by :
+`sudo apt-get install python3-pip -y`
+- Install pip by :
+`sudo pip3 install -U pip`
+- Install Node js by :
+`curl -fssL https://deb.nodesource.com/setup_19.x | sudo -E bash - && sudo apt-get install nodejs -y && npm i -g npm`
+- Clone the repository by :
+`git clone https://github.com/xbitcode/music && cd music`
+- Install requirements by :
+`pip3 install -U -r requirements.txt`
+- Fill your variables in the env by :
+`vi sample.env`<br>
+Press `I` on the keyboard for editing env<br>
+Press `Ctrl+C` when you're done with editing env and `:wq` to save the env<br>
+- Rename the env file by :
+`mv sample.env .env`
+- Install tmux to keep running your bot when you close the terminal by :
+`sudo apt install tmux && tmux`
+- Finally run the bot by :
+`bash start`
+- For getting out from tmux session : Press `Ctrl+b` and then `d`<br>
+━━━━━━━━━━━━━━━━━━━━
+
+<h3 align="center">
+    ─「 sᴜᴩᴩᴏʀᴛ 」─
+</h3>
+
+<p align="center">
+<a href="https://t.me/betabot_support"><img src="https://img.shields.io/badge/-Support%20Group-blue.svg?style=for-the-badge&logo=Telegram"></a>
+</p>
+
+<p align="center">
+<a href="https://telegram.me/betabot_hub"><img src="https://img.shields.io/badge/-Support%20Channel-blue.svg?style=for-the-badge&logo=Telegram"></a>
+</p>
+
+<p align="center">
+  Made with ❤️ by <strong>THE SHIV</strong>
+</p>
+```
+
+- <b> _sᴩᴇᴄɪᴀʟ ᴛʜᴀɴᴋs ᴛᴏ Sparrow For [Core Development](https://MAHI-BEATS)
+- <br>_sᴩᴇᴄɪᴀʟ ᴛʜᴀɴᴋs ᴛᴏ  Rehanna For [Youtube Proxy](https://github.com/gr8rehanna) 
+- <br>_Maintainer  [Ami](https://github.com/shivashish44)
+- <br>__sᴩᴇᴄɪᴀʟ ᴛʜᴀɴᴋs ᴛᴏ Team istkhar and SHIV for base repository ♥️.
+
