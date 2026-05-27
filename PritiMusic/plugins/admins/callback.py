@@ -1,6 +1,6 @@
 import asyncio
 import random
-from pyrogram.types import CallbackQuery, InputMediaVideo, InputMediaPhoto, InlineKeyboardButton, InlineKeyboardMarkup
+from pyrogram.types import CallbackQuery, InputMediaPhoto, InlineKeyboardButton, InlineKeyboardMarkup
 from pyrogram import filters
 
 from PritiMusic import YouTube, app
@@ -26,7 +26,7 @@ from PritiMusic.utils.inline.start import private_panel, support_panel
 checker = {}
 upvoters = {}
 
-# --- BACK BUTTON HANDLER (Fix for Video/Photo + Random Image) ---
+# --- BACK BUTTON HANDLER ---
 @app.on_callback_query(filters.regex("settingsback_helper") & ~BANNED_USERS)
 @languageCB
 async def settings_back_helper(client, CallbackQuery, _):
@@ -35,7 +35,6 @@ async def settings_back_helper(client, CallbackQuery, _):
     except:
         pass
     
-    # Agar START_IMG_URL list hai to random choice karega, nahi to direct string lega
     if isinstance(START_IMG_URL, list):
         img = random.choice(START_IMG_URL)
     else:
@@ -49,19 +48,7 @@ async def settings_back_helper(client, CallbackQuery, _):
         reply_markup=InlineKeyboardMarkup(private_panel(_))
     )
 
-# --- SUPPORT PAGE ---
-@app.on_callback_query(filters.regex("support_page") & ~BANNED_USERS)
-async def support_cb(client, callback_query):
-    try:
-        _ = get_string("en")
-        await callback_query.answer()
-        await callback_query.edit_message_reply_markup(
-            reply_markup=InlineKeyboardMarkup(support_panel(_))
-        )
-    except Exception as e:
-        await callback_query.answer(f"Error: {e}", show_alert=True)
-
-# --- CLONE PAGE ---
+# --- CLONE PAGE (Video to Image updated) ---
 @app.on_callback_query(filters.regex("clone_page") & ~BANNED_USERS)
 @languageCB
 async def clone_page_cb(client, CallbackQuery, _):
@@ -75,9 +62,10 @@ async def clone_page_cb(client, CallbackQuery, _):
         "/rmbot – <b>ᴅᴇʟᴇᴛᴇ ʏᴏᴜʀ ᴄʟᴏɴᴇᴅ ʙᴏᴛ.</b>\n\n"
         "/mybot – <b>ᴄʜᴇᴄᴋ ᴛʜᴇ ʙᴏᴛs ʏᴏᴜ'ᴠᴇ ᴄʟᴏɴᴇᴅ.</b></blockquote>"
     )
+    # Video ki jagah InputMediaPhoto use kiya
     await CallbackQuery.edit_message_media(
-        media=InputMediaVideo(
-            media="https://files.catbox.moe/rxiwb3.mp4",
+        media=InputMediaPhoto(
+            media="https://files.catbox.moe/10zwqs.jpg", 
             caption=clone_text
         ),
         reply_markup=InlineKeyboardMarkup(
@@ -87,13 +75,13 @@ async def clone_page_cb(client, CallbackQuery, _):
         )
     )
 
-# --- SOURCE PAGE (Video + Owner + Back) ---
+# --- SOURCE PAGE (Image) ---
 @app.on_callback_query(filters.regex("gib_source"))
 async def gib_repo_callback(_, callback_query):
     await callback_query.edit_message_media(
-        media=InputMediaVideo(
-            "https://telegra.ph/file/b1367262cdfbcd0b2af07.mp4",
-            caption="ʟᴜɴᴅ ʟᴇʟᴇ ᴍᴇʀᴀ ʀᴇᴘᴏ ᴋʏᴀ ᴋᴀʀᴇɢᴀ, ʟᴇɢᴀ ᴋʏᴀ ʙʜᴏsᴀᴅɪᴋᴇ"
+        media=InputMediaPhoto(
+            media="https://files.catbox.moe/10zwqs.jpg",
+            caption="ᴘʜᴇʟᴀ ᴅᴇᴠɪʟ ᴋᴏ ᴘᴀᴘᴀ ʙᴏʟᴏ ᴄʜᴀʟ ʙᴏʟ😎"
         ),
         reply_markup=InlineKeyboardMarkup(
             [
@@ -105,7 +93,6 @@ async def gib_repo_callback(_, callback_query):
         ),
     )
 
-# --- UNBAN ASSISTANT ---
 @app.on_callback_query(filters.regex("unban_assistant"))
 async def unban_assistant(_, callback: CallbackQuery):
     chat_id = callback.message.chat.id
