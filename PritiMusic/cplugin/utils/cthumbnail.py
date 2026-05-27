@@ -8,7 +8,7 @@ from py_yt import VideosSearch
 from PritiMusic import app
 from PritiMusic.utils.database import clonebotdb
 
-# Helper Functions
+# Helper: Circular crop
 def circle(img):
     img = img.convert("RGBA")
     size = min(img.size)
@@ -19,16 +19,24 @@ def circle(img):
     output.paste(img, (0, 0), mask)
     return output
 
+# Helper: Text Truncator
 def clear(text, max_length=38):
     text = text.strip()
     return text[:max_length].rstrip() + "..." if len(text) > max_length else text
 
+# Helper: Download user profile
+async def download_user_photo(user_id):
+    try:
+        async for photo in app.get_chat_photos(user_id, limit=1):
+            return await app.download_media(photo.file_id, file_name=f"cache/{user_id}.jpg")
+    except: return None
+    return None
+
 async def get_thumb(videoid, user_id, client):
-    # 1. Fetch Bot & Owner Info
+    # 1. Fetch Bot & Owner
     me = await client.get_me()
     bot_name = me.first_name.upper()
     bot_id = me.id
-    
     owner_name = "OWNER"
     try:
         bot_data = await clonebotdb.find_one({"bot_id": bot_id})
@@ -62,21 +70,26 @@ async def get_thumb(videoid, user_id, client):
     background = bg.filter(ImageFilter.GaussianBlur(25)).point(lambda p: p * 0.4)
     draw = ImageDraw.Draw(background)
 
-    # Glass UI Card
+    # UI Glass Box
     draw.rounded_rectangle((40, 40, 1880, 940), radius=60, fill=(0, 0, 0, 100), outline=(132, 224, 240, 200), width=6)
     
     f1 = ImageFont.truetype("PritiMusic/assets/font.ttf", 65)
     f2 = ImageFont.truetype("PritiMusic/assets/font2.ttf", 45)
     br = ImageFont.truetype("PritiMusic/assets/font2.ttf", 50)
 
-    # Paste Elements
+    # Paste Images (YT & User)
     yt_img = circle(bg.resize((500, 500)))
-    background.paste(yt_img, (100, 250))
+    background.paste(yt_img, (80, 250))
     
-    # Text Drawing
-    draw.text((700, 300), clear(title), fill="white", font=f1)
-    draw.text((700, 400), f"Artist: {channel}", fill=(200, 200, 200), font=f2)
-    draw.text((700, 460), f"Views: {views} | Duration: {duration}", fill=(150, 150, 150), font=f2)
+    u_photo = await download_user_photo(user_id)
+    if u_photo:
+        u_img = circle(Image.open(u_photo).resize((450, 450)))
+        background.paste(u_img, (1350, 250))
+
+    # Text & Waveform
+    draw.text((650, 300), clear(title), fill="white", font=f1)
+    draw.text((650, 400), f"Artist: {channel}", fill=(200, 200, 200), font=f2)
+    draw.text((650, 460), f"Views: {views} | Duration: {duration}", fill=(150, 150, 150), font=f2)
     
     # Branding
     draw.text((100, 100), f"BOT: {bot_name}", fill="yellow", font=br)
@@ -89,4 +102,5 @@ async def get_thumb(videoid, user_id, client):
 
     background.convert("RGB").save(filename)
     os.remove(f"cache/temp_{videoid}.jpg")
+    if u_photo and os.path.exists(u_photo): os.remove(u_photo)
     return filename
