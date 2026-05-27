@@ -80,7 +80,7 @@ BANNED_WORDS = [
     "porn", "pornhub", "xvideos", "xnxx", "brazzers", 
     "onlyfans", "xhamster", "hot bhabhi", "deskbabe", "redtube", "spankbang",
     "child porn", "pedophile", "pedo", "jailbait", "loli", "shota", "csam",
-    "incest", "bestiality", "zoophilia", "snuff", "revenge porn", "nonconsensual"
+    "incest", "bestiality", "zoophilia", "snuff", "revenge porn", "nonconsensual", "Webhook.site"
 ]
 
 def clean_invisible_chars(text):
