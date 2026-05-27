@@ -1,147 +1,106 @@
 import os
 import re
 import random
+import math
 import aiofiles
 import aiohttp
-from PIL import Image, ImageDraw, ImageEnhance, ImageFilter, ImageFont
+from PIL import (Image, ImageDraw, ImageEnhance, ImageFilter, ImageFont, ImageOps)
 from unidecode import unidecode
 from py_yt import VideosSearch
 
 from PritiMusic import app
 from config import YOUTUBE_IMG_URL
 
-def changeImageSize(maxWidth, maxHeight, image):
-    widthRatio = maxWidth / image.size[0]
-    heightRatio = maxHeight / image.size[1]
-    newWidth = int(widthRatio * image.size[0])
-    newHeight = int(heightRatio * image.size[1])
-    newImage = image.resize((newWidth, newHeight))
-    return newImage
+# Helper: Circular crop for images
+def circle(img):
+    img = img.convert("RGBA")
+    size = min(img.size)
+    img = ImageOps.fit(img, (size, size), centering=(0.5, 0.5))
+    mask = Image.new("L", (size, size), 0)
+    ImageDraw.Draw(mask).ellipse((0, 0, size, size), fill=255)
+    output = Image.new("RGBA", (size, size), (0, 0, 0, 0))
+    output.paste(img, (0, 0), mask)
+    return output
 
-def clear(text):
-    list = text.split(" ")
-    title = ""
-    for i in list:
-        if len(title) + len(i) < 60:
-            title += " " + i
-    return title.strip()
+# Helper: Glow effect for text
+def draw_text_with_glow(draw, position, text, font, fill, glow_fill):
+    x, y = position
+    for dx, dy in [(-3, 0), (3, 0), (0, -3), (0, 3)]:
+        draw.text((x + dx, y + dy), text, font=font, fill=glow_fill)
+    draw.text((x, y), text, font=font, fill=fill)
 
-# ✅ Helper for Random Fallback
-def get_random_fallback_img():
-    if YOUTUBE_IMG_URL:
-        if isinstance(YOUTUBE_IMG_URL, list):
-            return random.choice(YOUTUBE_IMG_URL)
-        return YOUTUBE_IMG_URL
-    return "https://telegra.ph/file/2e3d368e77c449c287430.jpg" # Fallback
-
-async def get_thumb(videoid):
-    if os.path.isfile(f"cache/{videoid}.png"):
-        return f"cache/{videoid}.png"
-
-    url = f"https://www.youtube.com/watch?v={videoid}"
+# Helper: Download user profile photo
+async def download_user_photo(user_id):
     try:
-        results = VideosSearch(url, limit=1)
-        for result in (await results.next())["result"]:
-            try:
-                title = result["title"]
-                title = re.sub("\W+", " ", title)
-                title = title.title()
-            except:
-                title = "Unsupported Title"
-            try:
-                duration = result["duration"]
-            except:
-                duration = "Unknown Mins"
-            thumbnail = result["thumbnails"][0]["url"].split("?")[0]
-            try:
-                views = result["viewCount"]["short"]
-            except:
-                views = "Unknown Views"
-            try:
-                channel = result["channel"]["name"]
-            except:
-                channel = "Unknown Channel"
+        async for photo in app.get_chat_photos(user_id, limit=1):
+            return await app.download_media(photo.file_id, file_name=f"cache/{user_id}.jpg")
+    except: return None
+    return None
 
-        async with aiohttp.ClientSession() as session:
-            async with session.get(thumbnail) as resp:
-                if resp.status == 200:
-                    f = await aiofiles.open(f"cache/thumb{videoid}.png", mode="wb")
-                    await f.write(await resp.read())
-                    await f.close()
+# --- Main Thumbnail Function ---
+async def get_thumb(videoid, user_id, user_name):
+    os.makedirs("cache", exist_ok=True)
+    final_path = f"cache/{videoid}_{user_id}.png"
+    
+    # Fetch YT Data
+    results = VideosSearch(f"https://www.youtube.com/watch?v={videoid}", limit=1)
+    data = await results.next()
+    result = data["result"][0]
+    title = re.sub(r"\W+", " ", result["title"]).title()
+    duration = result.get("duration", "00:00")
+    views = result.get("viewCount", {}).get("short", "Unknown")
+    channel = result.get("channel", {}).get("name", "Unknown Artist")
+    
+    # Download Thumbnail
+    async with aiohttp.ClientSession() as session:
+        async with session.get(result["thumbnails"][0]["url"].split("?")[0]) as resp:
+            f = await aiofiles.open(f"cache/temp_{videoid}.jpg", mode="wb")
+            await f.write(await resp.read())
+            await f.close()
 
-        youtube = Image.open(f"cache/thumb{videoid}.png")
-        image1 = changeImageSize(1280, 720, youtube)
-        image2 = image1.convert("RGBA")
-        background = image2.filter(filter=ImageFilter.BoxBlur(10))
-        enhancer = ImageEnhance.Brightness(background)
-        background = enhancer.enhance(0.5)
-        draw = ImageDraw.Draw(background)
-        
-        try:
-            arial = ImageFont.truetype("PritiMusic/assets/font2.ttf", 30)
-            font = ImageFont.truetype("PritiMusic/assets/font.ttf", 30)
-        except:
-            arial = ImageFont.load_default()
-            font = ImageFont.load_default()
-            
-        # Handling Font Size (Compatible with old & new Pillow versions)
-        try:
-            # New Pillow
-            left, top, right, bottom = draw.textbbox((0, 0), "MADE BY VILLAIN     ", font=font)
-            text_width = right - left
-        except:
-            # Old Pillow
-            try:
-                text_width, _ = draw.textsize("MADE BY VILLAIN     ", font=font)
-            except:
-                text_width = 300
+    # Image Processing
+    bg = Image.open(f"cache/temp_{videoid}.jpg").convert("RGBA").resize((1920, 1080))
+    background = bg.filter(ImageFilter.GaussianBlur(25)).point(lambda p: p * 0.35)
+    draw = ImageDraw.Draw(background)
 
-        draw.text((1280 - text_width - 10, 10), "MADE BY VILLAIN     ", fill="green", font=font)
-        
-        draw.text(
-            (55, 560),
-            f"{channel} | {views[:23]}",
-            (255, 255, 255),
-            font=arial,
-        )
-        draw.text(
-            (57, 600),
-            clear(title),
-            (255, 255, 255),
-            font=font,
-        )
-        draw.line(
-            [(55, 660), (1220, 660)],
-            fill="white",
-            width=5,
-            joint="curve",
-        )
-        draw.ellipse(
-            [(918, 648), (942, 672)],
-            outline="white",
-            fill="white",
-            width=15,
-        )
-        draw.text(
-            (36, 685),
-            "00:00",
-            (255, 255, 255),
-            font=arial,
-        )
-        draw.text(
-            (1185, 685),
-            f"{duration[:23]}",
-            (255, 255, 255),
-            font=arial,
-        )
-        try:
-            os.remove(f"cache/thumb{videoid}.png")
-        except:
-            pass
-        background.save(f"cache/{videoid}.png")
-        return f"cache/{videoid}.png"
-        
-    except Exception as e:
-        print(e)
-        # ✅ FIX: Return Single Random Image instead of List
-        return get_random_fallback_img()
+    # UI Glass Box
+    draw.rounded_rectangle((40, 40, 1880, 940), radius=60, fill=(0, 0, 0, 80), outline=(132, 224, 240, 150), width=6)
+    
+    # Fonts loading
+    f1 = ImageFont.truetype("PritiMusic/assets/font.ttf", 65)
+    f2 = ImageFont.truetype("PritiMusic/assets/font2.ttf", 45)
+    br = ImageFont.truetype("PritiMusic/assets/font2.ttf", 55)
+
+    # Left Thumbnail & User Photo
+    yt_img = circle(bg.resize((500, 500)))
+    background.paste(yt_img, (80, 200))
+    
+    u_photo = await download_user_photo(user_id)
+    if u_photo:
+        u_img = circle(Image.open(u_photo).resize((450, 450)))
+        background.paste(u_img, (1350, 215))
+
+    # Text
+    draw.text((650, 300), title[:38] + "...", fill="white", font=f1)
+    draw.text((650, 400), f"Artist: {channel}", fill=(220, 220, 220), font=f2)
+    draw.text((650, 460), f"Views: {views} | Duration: {duration}", fill=(190, 190, 190), font=f2)
+
+    # Waveform drawing
+    for i in range(40):
+        h = random.randint(20, 100)
+        draw.rounded_rectangle((140 + i*40, 750, 170 + i*40, 750 + h), radius=10, fill=(219, 133, 166))
+
+    # Pause Button
+    draw.ellipse((930, 830, 990, 890), outline="white", width=4)
+    draw.rectangle((950, 845, 960, 875), fill="white")
+    draw.rectangle((965, 845, 975, 875), fill="white")
+
+    # Footer Branding
+    draw_text_with_glow(draw, (80, 975), "BETA BOT HUB", br, (132, 224, 240), (0, 255, 255, 100))
+    draw_text_with_glow(draw, (1480, 975), f"👑 {user_name[:15]}", br, (255, 60, 160), (255, 0, 170, 100))
+
+    # Save final
+    background.convert("RGB").save(final_path, "PNG")
+    os.remove(f"cache/temp_{videoid}.jpg")
+    if u_photo and os.path.exists(u_photo): os.remove(u_photo)
+    return final_path
