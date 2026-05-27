@@ -37,22 +37,28 @@ EFFECT_ID = [
 async def start_pm(client, message: Message, _):
 
     loading_1 = await message.reply_text(random.choice(CMBOT))
-    await add_served_user(message.from_user.id)
+     await add_served_user(message.from_user.id)
     
-    await loading_1.edit_text("<b>ʟᴏᴀᴅɪɴɢ</b>")
-    await asyncio.sleep(0.1)
-    await loading_1.edit_text("<b>ʟᴏᴀᴅɪɴɢ.</b>")
-    await asyncio.sleep(0.1)
-    await loading_1.edit_text("<b>ʟᴏᴀᴅɪɴɢ..</b>")
-    await asyncio.sleep(0.1)
-    await loading_1.edit_text("<b>ʟᴏᴀᴅɪɴɢ...</b>")
-    await asyncio.sleep(0.1)
-    await loading_1.delete()
+    await loading_1.edit_text("<b>ᴌᴏᴀᴅɪɴɢ....</b>")
+    await asyncio.sleep(0.3)
 
+    await loading_1.edit_text("<b>ꜱᴛᴀʀᴛɪɴɢ..ʙᴀʙʏ.❤️❤️</b>")
+    await asyncio.sleep(0.3)
+
+    await loading_1.edit_text("<b>ɪ ᴀᴍ ᴀʟɪᴠᴇ ʙᴀʙʏ❤️😌🫣🫣</b>")
+    await asyncio.sleep(0.5)
+
+    await loading_1.edit_text("<b>ʙᴇᴛᴀ ʙᴏᴛs🫣🫣.</b>")
+    await asyncio.sleep(0.5)
+
+    await loading_1.delete()
     if len(message.text.split()) > 1:
         name = message.text.split(None, 1)[1]
         if name[0:4] == "help":
             keyboard = help_pannel(_)
+            await app.send_chat_action(message.chat.id, ChatAction.TYPING)
+            # Sticker Before Image in /start help
+            await message.reply_sticker("CAACAgUAAxkBAAFJgZ1qBGwx9Z9vW5BhG3dw0l1A5j4CyQACXRYAAuc-wVWs4--9DGlDKzsE")
             return await message.reply_photo(
                 random.choice(START_IMG_URL),
                 caption=_["help_1"].format(config.SUPPORT_CHAT),
@@ -105,10 +111,15 @@ async def start_pm(client, message: Message, _):
                 )
     else:
         out = private_panel(_)
-        # This part requires Pyrofork >= 2.2.20
+        await app.send_chat_action(message.chat.id, ChatAction.TYPING)
+        
+        # 👉 Yahan Sticker Send Hoga (Start Image se pehle)
+        await message.reply_sticker("CAACAgUAAxkBAAFJgZ1qBGwx9Z9vW5BhG3dw0l1A5j4CyQACXRYAAuc-wVWs4--9DGlDKzsE")
+        
+        # 👉 Uske baad Start Image Send Hogi
         await message.reply_photo(
-            random.choice(START_IMG_URL),
-            message_effect_id=random.choice(EFFECT_ID),  # Effect ID line enabled
+            get_safe_photo(START_IMG_URL),
+            message_effect_id=random.choice(EFFECT_ID),
             caption=_["start_2"].format(message.from_user.mention, app.mention),
             reply_markup=InlineKeyboardMarkup(out),
         )
