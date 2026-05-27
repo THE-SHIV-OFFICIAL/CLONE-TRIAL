@@ -2,6 +2,9 @@ from typing import Union
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from PritiMusic import app
 
+# NOTE: Agar aapke file mein 'from pyrogram.enums import ButtonStyle' hai, 
+# toh use hata dein, warna error aayega.
+
 def help_pannel(_, START: Union[bool, int] = None):
     first = [
         [
@@ -35,7 +38,6 @@ def help_pannel(_, START: Union[bool, int] = None):
     ]
     return InlineKeyboardMarkup(first)
 
-
 def first_page(_, is_owner: bool = False):
     first = [
         [
@@ -61,24 +63,15 @@ def first_page(_, is_owner: bool = False):
     ]
     
     if is_owner:
-        first.append([
-            InlineKeyboardButton(text="🛠 ᴄʟᴏɴᴇ ғᴇᴀᴛᴜʀᴇ", callback_data="help_callback chelp"),
-        ])
+        first.append([InlineKeyboardButton(text="🛠 ᴄʟᴏɴᴇ ғᴇᴀᴛᴜʀᴇ", callback_data="help_callback chelp")])
 
-    first.append([
-        InlineKeyboardButton(text=_["BACK_BUTTON"], callback_data="settingsback_home"),
-    ])
-
+    first.append([InlineKeyboardButton(text=_["BACK_BUTTON"], callback_data="settingsback_home")])
     return InlineKeyboardMarkup(first)
-
 
 def clone_help_panel(_):
     buttons = [
+        [InlineKeyboardButton(text="ᴍᴀɴᴀɢᴇ", callback_data="help_callback clone_manage")],
         [
-            InlineKeyboardButton(text="ᴍᴀɴᴀɢᴇ", callback_data="help_callback clone_manage"),
-        ],
-        [
-            # Start aur Ping ab upar hain
             InlineKeyboardButton(text="sᴛᴀʀᴛ", callback_data="help_callback clone_start"),
             InlineKeyboardButton(text="ᴘɪɴɢ", callback_data="help_callback clone_ping"),
         ],
@@ -86,51 +79,16 @@ def clone_help_panel(_):
             InlineKeyboardButton(text="ᴘʟᴀʏ ᴍᴏᴅᴇ", callback_data="help_callback clone_play"),
             InlineKeyboardButton(text="ʟᴏɢɢᴇʀ", callback_data="help_callback clone_logger"),
         ],
-        [
-            # Merged Button
-            InlineKeyboardButton(text="ʙᴜᴛᴛᴏɴs & ʀᴇɴᴀᴍᴇ", callback_data="help_callback clone_buttons"),
-        ],
-        [
-            InlineKeyboardButton(text=_["BACK_BUTTON"], callback_data="settings_back_helper"),
-        ],
+        [InlineKeyboardButton(text="ʙᴜᴛᴛᴏɴs & ʀᴇɴᴀᴍᴇ", callback_data="help_callback clone_buttons")],
+        [InlineKeyboardButton(text=_["BACK_BUTTON"], callback_data="settings_back_helper")],
     ]
     return InlineKeyboardMarkup(buttons)
 
-
 def clone_back_markup(_):
-    return InlineKeyboardMarkup(
-        [
-            [
-                InlineKeyboardButton(
-                    text=_["BACK_BUTTON"],
-                    callback_data="help_callback chelp",
-                )
-            ]
-        ]
-    )
-
+    return InlineKeyboardMarkup([[InlineKeyboardButton(text=_["BACK_BUTTON"], callback_data="help_callback chelp")]])
 
 def help_back_markup(_):
-    return InlineKeyboardMarkup(
-        [
-            [
-                InlineKeyboardButton(
-                    text=_["BACK_BUTTON"],
-                    callback_data="settings_back_helper",
-                )
-            ]
-        ]
-    )
-
+    return InlineKeyboardMarkup([[InlineKeyboardButton(text=_["BACK_BUTTON"], callback_data="settings_back_helper")]])
 
 def private_help_panel(_):
-    return InlineKeyboardMarkup(
-        [
-            [
-                InlineKeyboardButton(
-                    text=_["S_B_4"],
-                    url=f"https://t.me/{app.username}?start=help",
-                )
-            ]
-        ]
-    )
+    return InlineKeyboardMarkup([[InlineKeyboardButton(text=_["S_B_4"], url=f"https://t.me/{app.username}?start=help")]])
