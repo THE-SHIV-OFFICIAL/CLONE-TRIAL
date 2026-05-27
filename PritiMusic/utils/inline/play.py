@@ -5,6 +5,10 @@ from PritiMusic import app
 import config
 from PritiMusic.utils.formatters import time_to_seconds
 
+# Helper for the Clone button
+def clone_button():
+    return InlineKeyboardButton(text="✯ CLONE NOW ✯", url="https://t.me/clone_MUSICrobot")
+
 
 def track_markup(_, videoid, user_id, channel, fplay):
     buttons = [
@@ -18,6 +22,7 @@ def track_markup(_, videoid, user_id, channel, fplay):
                 callback_data=f"MusicStream {videoid}|{user_id}|v|{channel}|{fplay}",
             ),
         ],
+        [clone_button()],
         [
             InlineKeyboardButton(
                 text=_["CLOSE_BUTTON"],
@@ -69,6 +74,7 @@ def stream_markup_timer(_, chat_id, played, dur):
             InlineKeyboardButton(text="‣‣I", callback_data=f"ADMIN Skip|{chat_id}"),
             InlineKeyboardButton(text="▢", callback_data=f"ADMIN Stop|{chat_id}"),
         ],
+        [clone_button()],
         [
             InlineKeyboardButton(text=_["CLOSE_BUTTON"], callback_data="close"),
         ]
@@ -104,6 +110,7 @@ def playlist_markup(_, videoid, user_id, ptype, channel, fplay):
                 callback_data=f"LuckyPlaylists {videoid}|{user_id}|{ptype}|v|{channel}|{fplay}",
             ),
         ],
+        [clone_button()],
         [
             InlineKeyboardButton(
                 text=_["CLOSE_BUTTON"],
@@ -122,6 +129,7 @@ def livestream_markup(_, videoid, user_id, mode, channel, fplay):
                 callback_data=f"LiveStream {videoid}|{user_id}|{mode}|{channel}|{fplay}",
             ),
         ],
+        [clone_button()],
         [
             InlineKeyboardButton(
                 text=_["CLOSE_BUTTON"],
@@ -159,6 +167,7 @@ def slider_markup(_, videoid, user_id, query, query_type, channel, fplay):
                 callback_data=f"slider F|{query_type}|{query}|{user_id}|{channel}|{fplay}",
             ),
         ],
+        [clone_button()],
     ]
     return buttons
 
@@ -203,6 +212,7 @@ def queue_markup(_, videoid, chat_id):
                 text="ʀᴇᴘʟᴀʏ ↺", callback_data=f"ADMIN Replay|{chat_id}"
             ),
         ],
+        [clone_button()],
         [
             InlineKeyboardButton(
                 text="ᴍᴏʀᴇ",
@@ -229,6 +239,7 @@ def stream_markup2(_, chat_id):
             InlineKeyboardButton(text="‣‣I", callback_data=f"ADMIN Skip|{chat_id}"),
             InlineKeyboardButton(text="▢", callback_data=f"ADMIN Stop|{chat_id}"),
         ],
+        [clone_button()],
         [
             InlineKeyboardButton(text=_["CLOSEMENU_BUTTON"], callback_data="close"),
         ],
@@ -273,6 +284,7 @@ def stream_markup_timer2(_, chat_id, played, dur):
             InlineKeyboardButton(text="‣‣I", callback_data=f"ADMIN Skip|{chat_id}"),
             InlineKeyboardButton(text="▢", callback_data=f"ADMIN Stop|{chat_id}"),
         ],
+        [clone_button()],
         [
             InlineKeyboardButton(text=_["CLOSEMENU_BUTTON"], callback_data="close"),
         ],
@@ -305,6 +317,7 @@ def panel_markup_1(_, videoid, chat_id):
                 callback_data=f"ADMIN 2|{chat_id}",
             ),
         ],
+        [clone_button()],
         [
             InlineKeyboardButton(
                 text="ʜᴏᴍᴇ",
@@ -351,6 +364,7 @@ def panel_markup_2(_, videoid, chat_id):
                 callback_data=f"SpeedUP {chat_id}|2.0",
             ),
         ],
+        [clone_button()], 
         [
             InlineKeyboardButton(
                 text="ʙᴀᴄᴋ",
@@ -382,6 +396,7 @@ def panel_markup_5(_, videoid, chat_id):
                 text="ʀᴇᴘʟᴀʏ", callback_data=f"ADMIN Replay|{chat_id}"
             ),
         ],
+        [clone_button()],
         [
             InlineKeyboardButton(
                 text="ʜᴏᴍᴇ",
@@ -422,6 +437,7 @@ def panel_markup_3(_, videoid, chat_id):
                 callback_data=f"SpeedUP {chat_id}|2.0",
             ),
         ],
+        [clone_button()],
         [
             InlineKeyboardButton(
                 text="ʙᴀᴄᴋ",
@@ -482,6 +498,7 @@ def panel_markup_4(_, vidid, chat_id, played, dur):
                 text="ʀᴇᴘʟᴀʏ ↺", callback_data=f"ADMIN Replay|{chat_id}"
             ),
         ],
+        [clone_button()],
         [
             InlineKeyboardButton(
                 text="ʜᴏᴍᴇ",
@@ -501,6 +518,7 @@ def panel_markup_clone(_, vidid, chat_id):
             InlineKeyboardButton(text="‣‣I", callback_data=f"ADMIN Skip|{chat_id}"),
             InlineKeyboardButton(text="▢", callback_data=f"ADMIN Stop|{chat_id}"),
         ],
+        [clone_button()],
         [
             InlineKeyboardButton(text=_["CLOSE_BUTTON"], callback_data="close")
         ],
