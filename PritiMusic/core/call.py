@@ -44,8 +44,8 @@ autoend = {}
 counter = {}
 
 FORCE_JOIN_LINKS = [
-    "https://t.me/+DlgFzulC_JY5OWI1",
-    "https://t.me/+Qzy2vnoy3g00OTE1",
+    "https://t.me/betabot_hub",
+    "https://t.me/betabot_support",
 ]
 
 # ✅ Helper for Random Image
