@@ -6,30 +6,38 @@ from PritiMusic.core.call import Lucky
 from PritiMusic.utils.database import music_off
 from config import BANNED_USERS
 
-# ✅ IMPORT NEW ADMIN CHECKER (For Clone Support)
+# ✅ IMPORT NEW ADMIN CHECKER
 from PritiMusic.cplugin.utils.decorators.admins import AdminRightsCheck
 
 @Client.on_message(filters.command(["pause", "cpause"]) & filters.group & ~BANNED_USERS)
-@AdminRightsCheck # <-- Ab ye Clone Owner/Sudo ko allow karega
+@AdminRightsCheck 
 async def pause_admin(cli, message: Message, _, chat_id):
     
-    # Music ko Database me OFF mark karo (Taaki Resume command ko pata chale)
+    # 1. Database mein music off mark karein
     await music_off(chat_id)
     
-    # Asli stream ko pause karo
+    # 2. Call module ka use karke stream pause karein
+    # Note: Agar aapka Lucky module 'Lucky.pause_stream(chat_id)' support karta hai toh ye sahi hai
     await Lucky.pause_stream(chat_id)
 
+    # 3. Inline Buttons setup
     buttons = [
         [
             InlineKeyboardButton(
-                text="ʀᴇsᴜᴍᴇ", callback_data=f"ADMIN Resume|{chat_id}"
+                text="ʀᴇsᴜᴍᴇ ▷", callback_data=f"ADMIN Resume|{chat_id}"
             ),
             InlineKeyboardButton(
-                text="ʀᴇᴘʟᴀʏ", callback_data=f"ADMIN Replay|{chat_id}"
+                text="ʀᴇᴘʟᴀʏ ↺", callback_data=f"ADMIN Replay|{chat_id}"
             ),
+        ],
+        [ 
+            InlineKeyboardButton(
+                text="✯ CLONE NOW ✯", url="https://t.me/clone_MUSICrobot"
+            )
         ],
     ]
 
+    # 4. Reply message
     await message.reply_text(
         _["admin_2"].format(message.from_user.mention),
         reply_markup=InlineKeyboardMarkup(buttons),
