@@ -71,20 +71,29 @@ async def get_thumb(videoid, user_id, user_name):
             u_img = circle(Image.open(u_photo).resize((450, 450)))
             background.paste(u_img, (1350, 215))
 
-        draw.text((650, 300), (title[:38] + "...") if len(title) > 38 else title, fill="white", font=f1)
+        draw.text((650, 300), (title[:22] + "...") if len(title) > 22 else title, fill="white", font=f1)
         draw.text((650, 400), f"Artist: {channel}", fill=(220, 220, 220), font=f2)
-        draw.text((650, 460), f"Views: {views} | Duration: {duration}", fill=(190, 190, 190), font=f2)
+        
+        # बदलाव 1: Duration को Views के नीचे कर दिया गया है
+        draw.text((650, 460), f"Views: {views}", fill=(190, 190, 190), font=f2)
+        draw.text((650, 520), f"Duration: {duration}", fill=(190, 190, 190), font=f2)
 
+        # बदलाव 2 & 3: Wave को बीच से (Up-Down) और अलग-अलग कलर का किया गया है
+        center_y = 750 # वेव की सेंटर लाइन
         for i in range(40):
-            h = random.randint(20, 100)
-            draw.rounded_rectangle((140 + i*40, 750, 170 + i*40, 750 + h), radius=10, fill=(219, 133, 166))
+            h = random.randint(10, 60) # वेव की ऊँचाई (ऊपर और नीचे)
+            r = random.randint(100, 255)
+            g = random.randint(100, 255)
+            b = random.randint(150, 255)
+            # सेंटर से 'h' पिक्सल ऊपर और 'h' पिक्सल नीचे ड्रा होगा
+            draw.rounded_rectangle((140 + i*40, center_y - h, 170 + i*40, center_y + h), radius=10, fill=(r, g, b))
 
         draw.ellipse((930, 830, 990, 890), outline="white", width=4)
         draw.rectangle((950, 845, 960, 875), fill="white")
         draw.rectangle((965, 845, 975, 875), fill="white")
 
         draw_text_with_glow(draw, (80, 975), "BETA BOT HUB", br, (132, 224, 240), (0, 255, 255, 100))
-        draw_text_with_glow(draw, (1480, 975), f"👑 {str(user_name)[:15]}", br, (255, 60, 160), (255, 0, 170, 100))
+        draw_text_with_glow(draw, (1480, 975), "THE SHIV", br, (255, 60, 160), (255, 0, 170, 100))
 
         background.convert("RGB").save(final_path, "PNG")
         return final_path
