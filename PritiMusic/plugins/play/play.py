@@ -338,7 +338,7 @@ async def play_commnd(
         elif await Spotify.valid(url):
             spotify = True
             if not config.SPOTIFY_CLIENT_ID and not config.SPOTIFY_CLIENT_SECRET:
-                return await mystic.edit_text("» sᴘᴏᴛɪғʏ ɪs ɴᴏᴛ sᴜᴘᴘᴏʀᴛᴇᴅ ʏᴇᴛ.\n\nᴘʟᴇᴀsᴇ ᴛʀʏ ᴀɢᴀɪ聯 ʟᴀᴛᴇʀ.")
+                return await mystic.edit_text("» sᴘᴏᴛɪғʏ ɪs ɴᴏᴛ sᴜᴘᴘᴏʀᴛᴇᴅ ʏᴇᴛ.\n\nᴘʟᴇᴀsᴇ ᴛʀʏ ᴀɢᴀɪɴ ʟᴀᴛᴇʀ.")
             if "track" in url:
                 try:
                     details, track_id = await Spotify.track(url)
@@ -414,7 +414,7 @@ async def play_commnd(
                 return await mystic.edit_text(_["play_3"])
                 
             if is_nsfw_content(details.get("title", "")):
-                await send_security_log(message, "ɴsғᴡ ᴠɪᴏʟᴀ轉ᴀᴛɪᴏɴ", details.get("title", ""))
+                await send_security_log(message, "ɴsғᴡ ᴠɪᴏʟᴀᴛɪᴏɴ", details.get("title", ""))
                 return await mystic.edit_text("**🚫 sᴇᴄᴜʀɪᴛʏ ᴀʟᴇʀᴛ: ᴀᴅᴜʟᴛ ᴄᴏɴᴛᴇɴᴛ ɪs sᴛʀɪᴄᴛʟʏ ᴘʀᴏʜɪʙɪᴛᴇᴅ!**")
 
             streamtype = "youtube"
@@ -496,7 +496,7 @@ async def play_commnd(
                 photo=get_random_img(config.PLAYLIST_IMG_URL),
                 caption=_["play_18"],
                 reply_markup=InlineKeyboardMarkup(buttons),
-                has_spoiler=True
+                has_spoiler=False
             )
             
         slider = True
@@ -593,7 +593,7 @@ async def play_commnd(
                 photo=img,
                 caption=cap,
                 reply_markup=InlineKeyboardMarkup(buttons),
-                has_spoiler=True
+                has_spoiler=False
             )
             return await play_logs(message, streamtype=f"Playlist : {plist_type}")
         else:
@@ -613,7 +613,7 @@ async def play_commnd(
                     photo=img,
                     caption=cap,
                     reply_markup=InlineKeyboardMarkup(buttons),
-                    has_spoiler=True
+                    has_spoiler=False
                 )
                 return await play_logs(message, streamtype=f"Searched on Youtube")
             else:
@@ -630,7 +630,7 @@ async def play_commnd(
                     photo=img,
                     caption=cap,
                     reply_markup=InlineKeyboardMarkup(buttons),
-                    has_spoiler=True
+                    has_spoiler=False
                 )
                 return await play_logs(message, streamtype=f"URL Searched Inline")
 
@@ -854,7 +854,7 @@ async def slider_queries(client, CallbackQuery, _):
         buttons = slider_markup(_, vidid, user_id, query, query_type, cplay, fplay)
         
         return await CallbackQuery.edit_message_media(
-            media=InputMediaPhoto(media=thumbnail, caption=_["play_10"].format(title.title(), duration_min), has_spoiler=True),
+            media=InputMediaPhoto(media=thumbnail, caption=_["play_10"].format(title.title(), duration_min), has_spoiler=False),
             reply_markup=InlineKeyboardMarkup(buttons)
         )
     
@@ -875,6 +875,6 @@ async def slider_queries(client, CallbackQuery, _):
         buttons = slider_markup(_, vidid, user_id, query, query_type, cplay, fplay)
         
         return await CallbackQuery.edit_message_media(
-            media=InputMediaPhoto(media=thumbnail, caption=_["play_10"].format(title.title(), duration_min), has_spoiler=True),
+            media=InputMediaPhoto(media=thumbnail, caption=_["play_10"].format(title.title(), duration_min), has_spoiler=False),
             reply_markup=InlineKeyboardMarkup(buttons)
         )
