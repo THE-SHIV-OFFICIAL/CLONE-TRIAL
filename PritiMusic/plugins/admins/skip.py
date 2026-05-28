@@ -137,7 +137,7 @@ async def skip(cli, message: Message, _, chat_id):
                 user,
             ),
             reply_markup=InlineKeyboardMarkup(button),
-            has_spoiler=True # ✨ Spoiler Added
+            has_spoiler=False # ✨ Spoiler Removed
         )
         db[chat_id][0]["mystic"] = run
         db[chat_id][0]["markup"] = "tg"
@@ -175,7 +175,7 @@ async def skip(cli, message: Message, _, chat_id):
                 user,
             ),
             reply_markup=InlineKeyboardMarkup(button),
-            has_spoiler=True # ✨ Spoiler Added
+            has_spoiler=False # ✨ Spoiler Removed
         )
         db[chat_id][0]["mystic"] = run
         db[chat_id][0]["markup"] = "stream"
@@ -192,7 +192,7 @@ async def skip(cli, message: Message, _, chat_id):
             photo=get_random_img(config.STREAM_IMG_URL),
             caption=_["stream_2"].format(user),
             reply_markup=InlineKeyboardMarkup(button),
-            has_spoiler=True # ✨ Spoiler Added
+            has_spoiler=False # ✨ Spoiler Removed
         )
         db[chat_id][0]["mystic"] = run
         db[chat_id][0]["markup"] = "tg"
@@ -222,7 +222,7 @@ async def skip(cli, message: Message, _, chat_id):
                     config.SUPPORT_CHAT, title[:23], check[0]["dur"], user
                 ),
                 reply_markup=InlineKeyboardMarkup(button),
-                has_spoiler=True # ✨ Spoiler Added
+                has_spoiler=False # ✨ Spoiler Removed
             )
             db[chat_id][0]["mystic"] = run
             db[chat_id][0]["markup"] = "tg"
@@ -238,7 +238,7 @@ async def skip(cli, message: Message, _, chat_id):
                     config.SUPPORT_CHAT, title[:23], check[0]["dur"], user
                 ),
                 reply_markup=InlineKeyboardMarkup(button),
-                has_spoiler=True # ✨ Spoiler Added
+                has_spoiler=False # ✨ Spoiler Removed
             )
             db[chat_id][0]["mystic"] = run
             db[chat_id][0]["markup"] = "tg"
@@ -258,7 +258,7 @@ async def skip(cli, message: Message, _, chat_id):
                     user,
                 ),
                 reply_markup=InlineKeyboardMarkup(button),
-                has_spoiler=True # ✨ Spoiler Added
+                has_spoiler=False # ✨ Spoiler Removed
             )
             db[chat_id][0]["mystic"] = run
             db[chat_id][0]["markup"] = "stream"
