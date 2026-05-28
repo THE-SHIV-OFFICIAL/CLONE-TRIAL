@@ -21,7 +21,7 @@ from config import (
     TELEGRAM_VIDEO_URL, START_IMG_URL, adminlist, confirmer, votemode
 )
 from strings import get_string
-from PritiMusic.utils.inline.start import private_panel, support_panel
+from PritiMusic.utils.inline.start import private_panel
 
 checker = {}
 upvoters = {}
@@ -48,7 +48,7 @@ async def settings_back_helper(client, CallbackQuery, _):
         reply_markup=InlineKeyboardMarkup(private_panel(_))
     )
 
-# --- CLONE PAGE (Video to Image updated) ---
+# --- CLONE PAGE ---
 @app.on_callback_query(filters.regex("clone_page") & ~BANNED_USERS)
 @languageCB
 async def clone_page_cb(client, CallbackQuery, _):
@@ -62,7 +62,6 @@ async def clone_page_cb(client, CallbackQuery, _):
         "/rmbot – <b>ᴅᴇʟᴇᴛᴇ ʏᴏᴜʀ ᴄʟᴏɴᴇᴅ ʙᴏᴛ.</b>\n\n"
         "/mybot – <b>ᴄʜᴇᴄᴋ ᴛʜᴇ ʙᴏᴛs ʏᴏᴜ'ᴠᴇ ᴄʟᴏɴᴇᴅ.</b></blockquote>"
     )
-    # Video ki jagah InputMediaPhoto use kiya
     await CallbackQuery.edit_message_media(
         media=InputMediaPhoto(
             media="https://files.catbox.moe/10zwqs.jpg", 
@@ -75,7 +74,37 @@ async def clone_page_cb(client, CallbackQuery, _):
         )
     )
 
-# --- SOURCE PAGE (Image) ---
+# --- SUPPORT PAGE (UPDATED WITH YOUR LINKS) ---
+@app.on_callback_query(filters.regex("support_page") & ~BANNED_USERS)
+@languageCB
+async def support_page_cb(client, CallbackQuery, _):
+    await CallbackQuery.answer()
+    support_text = (
+        "**✨ ᴡᴇʟᴄᴏᴍᴇ ᴛᴏ ᴛʜᴇ sᴜᴘᴘᴏʀᴛ ᴍᴇɴᴜ ✨**\n\n"
+        "ɪғ ʏᴏᴜ ɴᴇᴇᴅ ᴀɴʏ ʜᴇʟᴘ ʀᴇɢᴀʀᴅɪɴɢ ᴛʜᴇ ʙᴏᴛ ᴏʀ ᴡᴀɴᴛ ᴛᴏ ʀᴇᴘᴏʀᴛ ᴀ ʙᴜɢ, "
+        "ᴊᴏɪɴ ᴏᴜʀ sᴜᴘᴘᴏʀᴛ ᴄʜᴀᴛ ᴏʀ ᴄʜᴀɴɴᴇʟ ʙᴇʟᴏᴡ."
+    )
+    
+    # यहाँ आपके दिए गए लिंक्स के साथ नए बटन्स डिज़ाइन किए गए हैं
+    custom_support_buttons = [
+        [
+            InlineKeyboardButton(text="📢 ᴜᴘᴅᴀᴛᴇs", url="https://t.me/betabot_hub"),
+            InlineKeyboardButton(text="💬 sᴜᴘᴘᴏʀᴛ", url="https://t.me/betabot_support")
+        ],
+        [
+            InlineKeyboardButton(text="⌯ ʙᴀᴄᴋ ⌯", callback_data="settingsback_helper")
+        ]
+    ]
+
+    await CallbackQuery.edit_message_media(
+        media=InputMediaPhoto(
+            media="https://files.catbox.moe/10zwqs.jpg", 
+            caption=support_text
+        ),
+        reply_markup=InlineKeyboardMarkup(custom_support_buttons)
+    )
+
+# --- SOURCE PAGE ---
 @app.on_callback_query(filters.regex("gib_source"))
 async def gib_repo_callback(_, callback_query):
     await callback_query.edit_message_media(
