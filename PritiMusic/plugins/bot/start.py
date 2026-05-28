@@ -2,7 +2,7 @@ import time
 import random
 import asyncio
 from pyrogram import filters
-from pyrogram.enums import ChatType
+from pyrogram.enums import ChatType, ChatAction
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message
 from py_yt import VideosSearch
 
@@ -37,7 +37,7 @@ EFFECT_ID = [
 async def start_pm(client, message: Message, _):
 
     loading_1 = await message.reply_text(random.choice(CMBOT))
-     await add_served_user(message.from_user.id)
+    await add_served_user(message.from_user.id)
     
     await loading_1.edit_text("<b>ᴌᴏᴀᴅɪɴɢ....</b>")
     await asyncio.sleep(0.3)
@@ -118,7 +118,7 @@ async def start_pm(client, message: Message, _):
         
         # 👉 Uske baad Start Image Send Hogi
         await message.reply_photo(
-            get_safe_photo(START_IMG_URL),
+            random.choice(START_IMG_URL),
             message_effect_id=random.choice(EFFECT_ID),
             caption=_["start_2"].format(message.from_user.mention, app.mention),
             reply_markup=InlineKeyboardMarkup(out),
