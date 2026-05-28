@@ -30,23 +30,19 @@ def get_random_stats_img():
         if isinstance(config.STATS_IMG_URL, list):
             return random.choice(config.STATS_IMG_URL)
         return config.STATS_IMG_URL
-    return "https://telegra.ph/file/2e3d368e77c449c287430.jpg" # Fallback
+    return "https://files.catbox.moe/6r97s4.jpg"
 
 
 @Client.on_message(filters.command(["stats", "gstats"]) & ~BANNED_USERS)
 @language
 async def stats_global(client: Client, message: Message, _):
     a = await client.get_me()
-    bot_id = a.id
-
     upl = stats_buttons(_, True if message.from_user.id in SUDOERS else False)
     
-    # ✅ Random Image + Spoiler
     await message.reply_photo(
         photo=get_random_stats_img(),
         caption=_["gstats_2"].format(a.mention),
         reply_markup=upl,
-        has_spoiler=True
     )
 
 
@@ -54,10 +50,8 @@ async def stats_global(client: Client, message: Message, _):
 @languageCB
 async def home_stats(client, CallbackQuery, _):
     a = await client.get_me()
-    bot_id = a.id
     upl = stats_buttons(_, True if CallbackQuery.from_user.id in SUDOERS else False)
     
-    # Back button typically edits text. If you want to change media, use edit_message_media.
     await CallbackQuery.edit_message_text(
         text=_["gstats_2"].format(a.mention),
         reply_markup=upl,
@@ -75,10 +69,8 @@ async def overall_stats(client, CallbackQuery, _):
         pass
     upl = back_stats_buttons(_)
     
-    # Edit text to show loading...
     await CallbackQuery.edit_message_text(_["gstats_1"].format(a.mention))
     
-    # Fetch Clone Stats
     served_chats = len(await get_served_chats_clone(bot_id))
     served_users = len(await get_served_users_clone(bot_id))
     
@@ -94,14 +86,13 @@ async def overall_stats(client, CallbackQuery, _):
         config.DURATION_LIMIT_MIN,
     )
     
-    # ✅ Random Image + Spoiler for Media Edit
-    med = InputMediaPhoto(media=get_random_stats_img(), caption=text, has_spoiler=True)
+    med = InputMediaPhoto(media=get_random_stats_img(), caption=text)
     
     try:
         await CallbackQuery.edit_message_media(media=med, reply_markup=upl)
     except MessageIdInvalid:
         await CallbackQuery.message.reply_photo(
-            photo=get_random_stats_img(), caption=text, reply_markup=upl, has_spoiler=True
+            photo=get_random_stats_img(), caption=text, reply_markup=upl
         )
 
 
@@ -140,7 +131,6 @@ async def bot_stats(client, CallbackQuery, _):
     datasize = call["dataSize"] / 1024
     storage = call["storageSize"] / 1024
     
-    # Fetch Clone Stats
     served_chats = len(await get_served_chats_clone(bot_id))
     served_users = len(await get_served_users_clone(bot_id))
     
@@ -168,12 +158,11 @@ async def bot_stats(client, CallbackQuery, _):
         call["objects"],
     )
     
-    # ✅ Random Image + Spoiler for Media Edit
-    med = InputMediaPhoto(media=get_random_stats_img(), caption=text, has_spoiler=True)
+    med = InputMediaPhoto(media=get_random_stats_img(), caption=text)
     
     try:
         await CallbackQuery.edit_message_media(media=med, reply_markup=upl)
     except MessageIdInvalid:
         await CallbackQuery.message.reply_photo(
-            photo=get_random_stats_img(), caption=text, reply_markup=upl, has_spoiler=True
+            photo=get_random_stats_img(), caption=text, reply_markup=upl
         )
