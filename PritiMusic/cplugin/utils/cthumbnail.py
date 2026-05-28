@@ -20,7 +20,7 @@ def circle(img):
     return output
 
 # Helper: Text Truncator
-def clear(text, max_length=38):
+def clear(text, max_length=25):
     text = text.strip()
     return text[:max_length].rstrip() + "..." if len(text) > max_length else text
 
@@ -77,7 +77,7 @@ async def get_thumb(videoid, user_id, client):
     f2 = ImageFont.truetype("PritiMusic/assets/font2.ttf", 45)
     br = ImageFont.truetype("PritiMusic/assets/font2.ttf", 50)
 
-    # Paste Images (YT & User)
+    # Paste Images
     yt_img = circle(bg.resize((500, 500)))
     background.paste(yt_img, (80, 250))
     
@@ -86,19 +86,28 @@ async def get_thumb(videoid, user_id, client):
         u_img = circle(Image.open(u_photo).resize((450, 450)))
         background.paste(u_img, (1350, 250))
 
-    # Text & Waveform
-    draw.text((650, 300), clear(title), fill="white", font=f1)
+    # Fetch User Name
+    try:
+        user_info = await client.get_users(user_id)
+        user_name = user_info.first_name
+    except: user_name = "User"
+
+    # Text Placement
+    draw.text((650, 300), clear(title, 25), fill="white", font=f1)
     draw.text((650, 400), f"Artist: {channel}", fill=(200, 200, 200), font=f2)
-    draw.text((650, 460), f"Views: {views} | Duration: {duration}", fill=(150, 150, 150), font=f2)
+    draw.text((650, 470), f"Views: {views}", fill=(150, 150, 150), font=f2)
+    draw.text((650, 530), f"Duration: {duration}", fill=(150, 150, 150), font=f2)
     
-    # Branding
+    # Branding & Request
     draw.text((100, 100), f"BOT: {bot_name}", fill="yellow", font=br)
     draw.text((1400, 100), f"OWNER: {owner_name}", fill="cyan", font=br)
+    draw.text((1350, 880), f"Requested by: {user_name}", fill="white", font=f2)
 
-    # Waveform
+    # Up-Down Waveform
     for i in range(45):
-        h = random.randint(30, 120)
-        draw.rounded_rectangle((700 + i*25, 750, 720 + i*25, 750 + h), radius=5, fill=(219, 133, 166))
+        h = random.randint(50, 200)
+        y_pos = 750 - (h // 2)
+        draw.rounded_rectangle((700 + i*25, y_pos, 715 + i*25, y_pos + h), radius=5, fill=(219, 133, 166))
 
     background.convert("RGB").save(filename)
     os.remove(f"cache/temp_{videoid}.jpg")
