@@ -28,6 +28,5 @@ async def ping_clone(client: Client, message: Message, _):
             [
                 [InlineKeyboardButton("ɢᴏ ᴀɴᴅ ᴄʟᴏɴᴇ", url=BOT_LINK)]
             ]
-        ),
-        has_spoiler=True  # ✨ Spoiler Added
+        )
     )
