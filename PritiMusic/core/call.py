@@ -64,6 +64,7 @@ async def _clear_(chat_id):
 
 class Call(PyTgCalls):
     def __init__(self):
+        # --- ASSISTANT 1 ---
         self.userbot1 = Client(
             name="LuckyAss1",
             api_id=config.API_ID,
@@ -74,6 +75,58 @@ class Call(PyTgCalls):
             self.userbot1,
             cache_duration=20, # Reduced from 100 to fix Heroku R14 Memory Errors
         )
+        
+        # --- ASSISTANT 2 ---
+        self.string2 = getattr(config, "STRING2", None)
+        if self.string2:
+            self.userbot2 = Client(
+                name="LuckyAss2",
+                api_id=config.API_ID,
+                api_hash=config.API_HASH,
+                session_string=str(self.string2),
+            )
+            self.two = PyTgCalls(self.userbot2, cache_duration=20)
+        else:
+            self.two = None
+
+        # --- ASSISTANT 3 ---
+        self.string3 = getattr(config, "STRING3", None)
+        if self.string3:
+            self.userbot3 = Client(
+                name="LuckyAss3",
+                api_id=config.API_ID,
+                api_hash=config.API_HASH,
+                session_string=str(self.string3),
+            )
+            self.three = PyTgCalls(self.userbot3, cache_duration=20)
+        else:
+            self.three = None
+
+        # --- ASSISTANT 4 ---
+        self.string4 = getattr(config, "STRING4", None)
+        if self.string4:
+            self.userbot4 = Client(
+                name="LuckyAss4",
+                api_id=config.API_ID,
+                api_hash=config.API_HASH,
+                session_string=str(self.string4),
+            )
+            self.four = PyTgCalls(self.userbot4, cache_duration=20)
+        else:
+            self.four = None
+
+        # --- ASSISTANT 5 ---
+        self.string5 = getattr(config, "STRING5", None)
+        if self.string5:
+            self.userbot5 = Client(
+                name="LuckyAss5",
+                api_id=config.API_ID,
+                api_hash=config.API_HASH,
+                session_string=str(self.string5),
+            )
+            self.five = PyTgCalls(self.userbot5, cache_duration=20)
+        else:
+            self.five = None
         
         self.custom_assistants = {} 
         self.active_clients = {} 
@@ -460,8 +513,7 @@ class Call(PyTgCalls):
                         check[0]["dur"],
                         user,
                     ),
-                    reply_markup=InlineKeyboardMarkup(button),
-                    has_spoiler=True # ✨ Spoiler
+                    reply_markup=InlineKeyboardMarkup(button)
                 )
                 db[chat_id][0]["mystic"] = run
                 db[chat_id][0]["markup"] = "tg"
@@ -522,8 +574,7 @@ class Call(PyTgCalls):
                         check[0]["dur"],
                         user,
                     ),
-                    reply_markup=InlineKeyboardMarkup(button),
-                    has_spoiler=True # ✨ Spoiler
+                    reply_markup=InlineKeyboardMarkup(button)
                 )
                 db[chat_id][0]["mystic"] = run
                 db[chat_id][0]["markup"] = "stream"
@@ -549,8 +600,7 @@ class Call(PyTgCalls):
                     chat_id=original_chat_id,
                     photo=get_random_img(config.STREAM_IMG_URL),
                     caption=_["stream_2"].format(user),
-                    reply_markup=InlineKeyboardMarkup(button),
-                    has_spoiler=True # ✨ Spoiler
+                    reply_markup=InlineKeyboardMarkup(button)
                 )
                 db[chat_id][0]["mystic"] = run
                 db[chat_id][0]["markup"] = "tg"
@@ -584,8 +634,7 @@ class Call(PyTgCalls):
                         caption=_["stream_1"].format(
                             config.SUPPORT_CHAT, title[:23], check[0]["dur"], user
                         ),
-                        reply_markup=InlineKeyboardMarkup(button),
-                        has_spoiler=True # ✨ Spoiler
+                        reply_markup=InlineKeyboardMarkup(button)
                     )
                     db[chat_id][0]["mystic"] = run
                     db[chat_id][0]["markup"] = "tg"
@@ -597,8 +646,7 @@ class Call(PyTgCalls):
                         caption=_["stream_1"].format(
                             config.SUPPORT_CHAT, title[:23], check[0]["dur"], user
                         ),
-                        reply_markup=InlineKeyboardMarkup(button),
-                        has_spoiler=True # ✨ Spoiler
+                        reply_markup=InlineKeyboardMarkup(button)
                     )
                     db[chat_id][0]["mystic"] = run
                     db[chat_id][0]["markup"] = "tg"
@@ -618,24 +666,41 @@ class Call(PyTgCalls):
                             check[0]["dur"],
                             user,
                         ),
-                        reply_markup=InlineKeyboardMarkup(button),
-                        has_spoiler=True # ✨ Spoiler
+                        reply_markup=InlineKeyboardMarkup(button)
                     )
                     db[chat_id][0]["mystic"] = run
                     db[chat_id][0]["markup"] = "stream"
 
     async def ping(self):
         pings = []
-        if config.STRING1:
+        if config.STRING1 and self.one:
             pings.append(await self.one.ping)
-        return str(round(sum(pings) / len(pings), 3))
+        if getattr(self, "two", None):
+            pings.append(await self.two.ping)
+        if getattr(self, "three", None):
+            pings.append(await self.three.ping)
+        if getattr(self, "four", None):
+            pings.append(await self.four.ping)
+        if getattr(self, "five", None):
+            pings.append(await self.five.ping)
+            
+        return str(round(sum(pings) / len(pings), 3)) if pings else "0"
 
     async def start(self):
-        LOGGER(__name__).info("Starting PyTgCalls Client...\n")
-        if config.STRING1:
+        LOGGER(__name__).info("Starting PyTgCalls Clients...\n")
+        if config.STRING1 and self.one:
             await self.one.start()
+        if getattr(self, "two", None):
+            await self.two.start()
+        if getattr(self, "three", None):
+            await self.three.start()
+        if getattr(self, "four", None):
+            await self.four.start()
+        if getattr(self, "five", None):
+            await self.five.start()
 
     async def decorators(self):
+        # Decorators for Assistant 1
         @self.one.on_kicked()
         @self.one.on_closed_voice_chat()
         @self.one.on_left()
@@ -648,5 +713,60 @@ class Call(PyTgCalls):
                 return
             await self.change_stream(client, update.chat_id)
 
+        # Decorators for Assistant 2
+        if getattr(self, "two", None):
+            @self.two.on_kicked()
+            @self.two.on_closed_voice_chat()
+            @self.two.on_left()
+            async def stream_services_handler2(_, chat_id: int):
+                await self.stop_stream(chat_id)
+
+            @self.two.on_stream_end()
+            async def stream_end_handler2(client, update: Update):
+                if not isinstance(update, StreamAudioEnded):
+                    return
+                await self.change_stream(client, update.chat_id)
+
+        # Decorators for Assistant 3
+        if getattr(self, "three", None):
+            @self.three.on_kicked()
+            @self.three.on_closed_voice_chat()
+            @self.three.on_left()
+            async def stream_services_handler3(_, chat_id: int):
+                await self.stop_stream(chat_id)
+
+            @self.three.on_stream_end()
+            async def stream_end_handler3(client, update: Update):
+                if not isinstance(update, StreamAudioEnded):
+                    return
+                await self.change_stream(client, update.chat_id)
+
+        # Decorators for Assistant 4
+        if getattr(self, "four", None):
+            @self.four.on_kicked()
+            @self.four.on_closed_voice_chat()
+            @self.four.on_left()
+            async def stream_services_handler4(_, chat_id: int):
+                await self.stop_stream(chat_id)
+
+            @self.four.on_stream_end()
+            async def stream_end_handler4(client, update: Update):
+                if not isinstance(update, StreamAudioEnded):
+                    return
+                await self.change_stream(client, update.chat_id)
+
+        # Decorators for Assistant 5
+        if getattr(self, "five", None):
+            @self.five.on_kicked()
+            @self.five.on_closed_voice_chat()
+            @self.five.on_left()
+            async def stream_services_handler5(_, chat_id: int):
+                await self.stop_stream(chat_id)
+
+            @self.five.on_stream_end()
+            async def stream_end_handler5(client, update: Update):
+                if not isinstance(update, StreamAudioEnded):
+                    return
+                await self.change_stream(client, update.chat_id)
 
 Lucky = Call()
