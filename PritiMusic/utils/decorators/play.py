@@ -1,4 +1,5 @@
 import asyncio
+import random  # ✅ ADDED for handling list of images
 
 from pyrogram.enums import ChatMemberStatus
 from pyrogram.errors import (
@@ -27,7 +28,6 @@ from strings import get_string
 
 links = {}
 clinks = {}
-
 
 def PlayWrapper(command):
     async def wrapper(client, message):
@@ -69,16 +69,22 @@ def PlayWrapper(command):
             else None
         )
         url = await YouTube.url(message)
+        
         if audio_telegram is None and video_telegram is None and url is None:
             if len(message.command) < 2:
                 if "stream" in message.command:
                     return await message.reply_text(_["str_1"])
                 buttons = botplaylist_markup(_)
+                
+                # ✅ FIX: Handle list or single image string
+                img_url = random.choice(PLAYLIST_IMG_URL) if isinstance(PLAYLIST_IMG_URL, list) else PLAYLIST_IMG_URL
+                
                 return await message.reply_photo(
-                    photo=PLAYLIST_IMG_URL,
+                    photo=img_url,
                     caption=_["play_18"],
                     reply_markup=InlineKeyboardMarkup(buttons),
                 )
+                
         if message.command[0][0] == "c":
             chat_id = await get_cmode(message.chat.id)
             if chat_id is None:
@@ -91,6 +97,7 @@ def PlayWrapper(command):
         else:
             chat_id = message.chat.id
             channel = None
+            
         playmode = await get_playmode(message.chat.id)
         playty = await get_playtype(message.chat.id)
         if playty != "Everyone":
@@ -101,6 +108,7 @@ def PlayWrapper(command):
                 else:
                     if message.from_user.id not in admins:
                         return await message.reply_text(_["play_4"])
+                        
         if message.command[0][0] == "v":
             video = True
         else:
@@ -108,6 +116,7 @@ def PlayWrapper(command):
                 video = True
             else:
                 video = True if message.command[0][1] == "v" else None
+                
         if message.command[0][-1] == "e":
             if not await is_active_chat(chat_id):
                 return await message.reply_text(_["play_16"])
@@ -196,6 +205,7 @@ def PlayWrapper(command):
 
     return wrapper
 
+
 def CPlayWrapper(command):
     async def wrapper(client, message):
         i = await client.get_me()
@@ -237,16 +247,22 @@ def CPlayWrapper(command):
             else None
         )
         url = await YouTube.url(message)
+        
         if audio_telegram is None and video_telegram is None and url is None:
             if len(message.command) < 2:
                 if "stream" in message.command:
                     return await message.reply_text(_["str_1"])
                 buttons = botplaylist_markup(_)
+                
+                # ✅ FIX: Handle list or single image string for Clone Bot too
+                img_url = random.choice(PLAYLIST_IMG_URL) if isinstance(PLAYLIST_IMG_URL, list) else PLAYLIST_IMG_URL
+                
                 return await message.reply_photo(
-                    photo=PLAYLIST_IMG_URL,
+                    photo=img_url,
                     caption=_["play_18"],
                     reply_markup=InlineKeyboardMarkup(buttons),
                 )
+                
         if message.command[0][0] == "c":
             chat_id = await get_cmode(message.chat.id)
             if chat_id is None:
@@ -259,6 +275,7 @@ def CPlayWrapper(command):
         else:
             chat_id = message.chat.id
             channel = None
+            
         playmode = await get_playmode(message.chat.id)
         playty = await get_playtype(message.chat.id)
         if playty != "Everyone":
@@ -269,6 +286,7 @@ def CPlayWrapper(command):
                 else:
                     if message.from_user.id not in admins:
                         return await message.reply_text(_["play_4"])
+                        
         if message.command[0][0] == "v":
             video = True
         else:
@@ -276,6 +294,7 @@ def CPlayWrapper(command):
                 video = True
             else:
                 video = True if message.command[0][1] == "v" else None
+                
         if message.command[0][-1] == "e":
             if not await is_active_chat(chat_id):
                 return await message.reply_text(_["play_16"])
