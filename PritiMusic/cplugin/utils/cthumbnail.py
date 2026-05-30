@@ -3,8 +3,8 @@ import re
 import random
 import aiofiles
 import aiohttp
-import colorsys  # ✅ ADDED for Rainbow Color Math
-from PIL import (Image, ImageDraw, ImageEnhance, ImageFilter, ImageFont, ImageOps)
+import colorsys
+from PIL import (Image, ImageDraw, ImageFilter, ImageFont, ImageOps)
 from py_yt import VideosSearch
 from PritiMusic import app
 from PritiMusic.utils.database import clonebotdb
@@ -25,7 +25,6 @@ def clear(text, max_length=25):
     text = text.strip()
     return text[:max_length].rstrip() + "..." if len(text) > max_length else text
 
-# Helper: Download user profile
 async def download_user_photo(user_id):
     try:
         async for photo in app.get_chat_photos(user_id, limit=1):
@@ -69,20 +68,18 @@ async def get_thumb(videoid, user_id, client):
     # 4. Drawing Logic
     bg = Image.open(f"cache/temp_{videoid}.jpg").convert("RGBA").resize((1920, 1080))
     background = bg.filter(ImageFilter.GaussianBlur(25)).point(lambda p: p * 0.4)
-    # RGBA added here for transparent effects like rain
     draw = ImageDraw.Draw(background, "RGBA") 
 
     # UI Glass Box
     draw.rounded_rectangle((40, 40, 1880, 940), radius=60, fill=(0, 0, 0, 100), outline=(132, 224, 240, 200), width=6)
     
-    # --- NEW: Rain Effect Inside the Card ---
-    for _ in range(200): # 200 raindrops
-        rx = random.randint(60, 1860) # Keeping inside card bounds
-        ry = random.randint(60, 920)
-        length = random.randint(15, 40)
-        angle_offset = random.randint(-5, 5) # Slight diagonal fall
-        opacity = random.randint(30, 100) # Semi-transparent white
-        draw.line((rx, ry, rx + angle_offset, ry + length), fill=(255, 255, 255, opacity), width=random.randint(1, 2))
+    # --- REFINED RAIN EFFECT ---
+    # Using thinner, longer lines for a more realistic rainfall aesthetic
+    for _ in range(250):
+        rx = random.randint(40, 1880)
+        ry = random.randint(40, 940)
+        length = random.randint(20, 50)
+        draw.line((rx, ry, rx + 2, ry + length), fill=(255, 255, 255, random.randint(20, 60)), width=1)
 
     try:
         f1 = ImageFont.truetype("PritiMusic/assets/font.ttf", 65)
@@ -91,7 +88,7 @@ async def get_thumb(videoid, user_id, client):
     except:
         f1 = f2 = br = ImageFont.load_default()
 
-    # Paste Images (Mask pass kiya gaya hai taki background rain clear rahe)
+    # Paste Images
     yt_img = circle(bg.resize((500, 500)))
     background.paste(yt_img, (80, 250), yt_img) 
     
@@ -100,7 +97,6 @@ async def get_thumb(videoid, user_id, client):
         u_img = circle(Image.open(u_photo).resize((450, 450)))
         background.paste(u_img, (1350, 250), u_img)
 
-    # Fetch User Name
     try:
         user_info = await client.get_users(user_id)
         user_name = user_info.first_name
@@ -112,51 +108,34 @@ async def get_thumb(videoid, user_id, client):
     draw.text((650, 470), f"Views: {views}", fill=(150, 150, 150), font=f2)
     draw.text((650, 530), f"Duration: {duration}", fill=(150, 150, 150), font=f2)
     
-    # Branding & Request
+    # Branding
     draw.text((100, 100), f"BOT: {bot_name}", fill="yellow", font=br)
     draw.text((1400, 100), f"OWNER: {owner_name}", fill="cyan", font=br)
     draw.text((1350, 880), f"Requested by: {user_name}", fill="white", font=f2)
 
-    # --- ✅ NEW: RAINBOW NEON AUDIO WAVE ---
+    # --- RAINBOW NEON AUDIO WAVE ---
     center_y = 750
     num_bars = 80  
-    bar_width = 6   
     spacing = 14   
-    start_x = 650  # Aligned with the text
+    start_x = 650
     
     for i in range(num_bars):
-        if i % 5 == 0:
-            h = random.randint(40, 80)
-        else:
-            h = random.randint(10, 45)
-            
+        h = random.randint(40, 80) if i % 5 == 0 else random.randint(10, 45)
         x1 = start_x + (i * spacing)
-        x2 = x1 + bar_width
-        
-        if x2 > 1300: # Stop before overlapping the user profile picture
-            break
+        x2 = x1 + 6
+        if x2 > 1300: break
             
-        # Calculates the Rainbow Color mapping exactly like the image: 
         hue = 0.60 + (i / num_bars) * 0.75
-        if hue > 1.0:
-            hue -= 1.0
+        if hue > 1.0: hue -= 1.0
         r, g, b = [int(c * 255) for c in colorsys.hsv_to_rgb(hue, 1.0, 1.0)]
         
-        # LAYER 1: Massive Outer Glow
+        # Audio Glow layers
         draw.rounded_rectangle((x1 - 8, center_y - h - 8, x2 + 8, center_y + h + 8), radius=8, fill=(r, g, b, 15))
-        
-        # LAYER 2: Wide Spread Glow
         draw.rounded_rectangle((x1 - 4, center_y - h - 4, x2 + 4, center_y + h + 4), radius=6, fill=(r, g, b, 45))
-        
-        # LAYER 3: Intense Inner Glow
         draw.rounded_rectangle((x1 - 1, center_y - h - 1, x2 + 1, center_y + h + 1), radius=4, fill=(r, g, b, 120))
-        
-        # LAYER 4: Bright White Sharp Core
-        core_x1 = x1 + 2
-        core_x2 = x2 - 2
-        draw.rounded_rectangle((core_x1, center_y - h, core_x2, center_y + h), radius=2, fill=(255, 255, 255, 255))
+        draw.rounded_rectangle((x1 + 2, center_y - h, x2 - 2, center_y + h), radius=2, fill=(255, 255, 255, 255))
 
     background.convert("RGB").save(filename)
-    os.remove(f"cache/temp_{videoid}.jpg")
+    if os.path.exists(f"cache/temp_{videoid}.jpg"): os.remove(f"cache/temp_{videoid}.jpg")
     if u_photo and os.path.exists(u_photo): os.remove(u_photo)
     return filename
