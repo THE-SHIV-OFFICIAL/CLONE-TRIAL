@@ -39,10 +39,10 @@ async def start_pm(client, message: Message, _):
     loading_1 = await message.reply_text(random.choice(CMBOT))
     await add_served_user(message.from_user.id)
     
-    await loading_1.edit_text("<b>ᴌᴏᴀᴅɪɴɢ....</b>")
+    await loading_1.edit_text("<b>ᴌᴏᴀᴅɪɴɢ............</b>")
     await asyncio.sleep(0.3)
 
-    await loading_1.edit_text("<b>ꜱᴛᴀʀᴛɪɴɢ..ʙᴀʙʏ.❤️❤️</b>")
+    await loading_1.edit_text("<b>ꜱᴛᴀʀᴛɪɴɢ..ʙᴀʙʏ..........❤️❤️</b>")
     await asyncio.sleep(0.3)
 
     await loading_1.edit_text("<b>ɪ ᴀᴍ ᴀʟɪᴠᴇ ʙᴀʙʏ❤️😌🫣🫣</b>")
