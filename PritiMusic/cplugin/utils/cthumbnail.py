@@ -3,6 +3,7 @@ import re
 import random
 import aiofiles
 import aiohttp
+import colorsys  # ✅ ADDED for Rainbow Color Math
 from PIL import (Image, ImageDraw, ImageEnhance, ImageFilter, ImageFont, ImageOps)
 from py_yt import VideosSearch
 from PritiMusic import app
@@ -116,11 +117,11 @@ async def get_thumb(videoid, user_id, client):
     draw.text((1400, 100), f"OWNER: {owner_name}", fill="cyan", font=br)
     draw.text((1350, 880), f"Requested by: {user_name}", fill="white", font=f2)
 
-    # --- UPDATED: Thinner and More Attractive Audio Wave ---
+    # --- ✅ NEW: RAINBOW NEON AUDIO WAVE ---
     center_y = 750
-    num_bars = 80  # More bars for smooth effect
-    bar_width = 8  # Thinner bars
-    spacing = 14   # Gap between bars
+    num_bars = 80  
+    bar_width = 6   
+    spacing = 14   
     start_x = 650  # Aligned with the text
     
     for i in range(num_bars):
@@ -129,17 +130,31 @@ async def get_thumb(videoid, user_id, client):
         else:
             h = random.randint(10, 45)
             
-        r = random.randint(150, 255)
-        g = random.randint(100, 200)
-        b = random.randint(200, 255) 
-        
         x1 = start_x + (i * spacing)
         x2 = x1 + bar_width
         
         if x2 > 1300: # Stop before overlapping the user profile picture
             break
             
-        draw.rounded_rectangle((x1, center_y - h, x2, center_y + h), radius=4, fill=(r, g, b, 200))
+        # Calculates the Rainbow Color mapping exactly like the image: 
+        hue = 0.60 + (i / num_bars) * 0.75
+        if hue > 1.0:
+            hue -= 1.0
+        r, g, b = [int(c * 255) for c in colorsys.hsv_to_rgb(hue, 1.0, 1.0)]
+        
+        # LAYER 1: Massive Outer Glow
+        draw.rounded_rectangle((x1 - 8, center_y - h - 8, x2 + 8, center_y + h + 8), radius=8, fill=(r, g, b, 15))
+        
+        # LAYER 2: Wide Spread Glow
+        draw.rounded_rectangle((x1 - 4, center_y - h - 4, x2 + 4, center_y + h + 4), radius=6, fill=(r, g, b, 45))
+        
+        # LAYER 3: Intense Inner Glow
+        draw.rounded_rectangle((x1 - 1, center_y - h - 1, x2 + 1, center_y + h + 1), radius=4, fill=(r, g, b, 120))
+        
+        # LAYER 4: Bright White Sharp Core
+        core_x1 = x1 + 2
+        core_x2 = x2 - 2
+        draw.rounded_rectangle((core_x1, center_y - h, core_x2, center_y + h), radius=2, fill=(255, 255, 255, 255))
 
     background.convert("RGB").save(filename)
     os.remove(f"cache/temp_{videoid}.jpg")
