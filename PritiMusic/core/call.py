@@ -72,7 +72,7 @@ class Call(PyTgCalls):
         )
         self.one = PyTgCalls(
             self.userbot1,
-            cache_duration=100,
+            cache_duration=20, # Reduced from 100 to fix Heroku R14 Memory Errors
         )
         
         self.custom_assistants = {} 
@@ -304,7 +304,7 @@ class Call(PyTgCalls):
             else:
                 assistant_to_join = PyTgCalls(
                     userbot,
-                    cache_duration=100
+                    cache_duration=20 # Reduced from 100 to fix Heroku R14 Memory Errors
                 )
                 await assistant_to_join.start()
                 
@@ -504,7 +504,10 @@ class Call(PyTgCalls):
                         original_chat_id,
                         text=_["call_6"],
                     )
-                img = await get_thumb(videoid)
+                
+                # Fetch user_id safely and pass both arguments to fix TypeError
+                req_user_id = check[0].get("user_id", 0)
+                img = await get_thumb(videoid, req_user_id, user)
                 # Fallback to random playlist image if thumb fails
                 if not img: img = get_random_img(config.PLAYLIST_IMG_URL)
 
@@ -600,7 +603,9 @@ class Call(PyTgCalls):
                     db[chat_id][0]["mystic"] = run
                     db[chat_id][0]["markup"] = "tg"
                 else:
-                    img = await get_thumb(videoid)
+                    # Fetch user_id safely and pass both arguments to fix TypeError
+                    req_user_id = check[0].get("user_id", 0)
+                    img = await get_thumb(videoid, req_user_id, user)
                     if not img: img = get_random_img(config.PLAYLIST_IMG_URL)
 
                     button = stream_markup(_, chat_id)
