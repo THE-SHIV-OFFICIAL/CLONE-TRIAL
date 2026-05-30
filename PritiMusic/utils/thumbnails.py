@@ -52,9 +52,19 @@ async def get_thumb(videoid, user_id, user_name):
 
         bg = Image.open(f"cache/temp_{videoid}.jpg").convert("RGBA").resize((1920, 1080))
         background = bg.filter(ImageFilter.GaussianBlur(25)).point(lambda p: p * 0.35)
-        draw = ImageDraw.Draw(background)
+        draw = ImageDraw.Draw(background, "RGBA") # "RGBA" added for transparent effects
 
-        draw.rounded_rectangle((40, 40, 1880, 940), radius=60, fill=(0, 0, 0, 80), outline=(132, 224, 240, 150), width=6)
+        # Card Background
+        draw.rounded_rectangle((40, 40, 1880, 940), radius=60, fill=(0, 0, 0, 120), outline=(132, 224, 240, 150), width=6)
+        
+        # --- NEW: Rain Effect Inside the Card ---
+        for _ in range(200): # 200 raindrops
+            rx = random.randint(60, 1860) # Keeping inside card bounds
+            ry = random.randint(60, 920)
+            length = random.randint(15, 40)
+            angle_offset = random.randint(-5, 5) # Slight diagonal fall
+            opacity = random.randint(30, 100) # Semi-transparent white
+            draw.line((rx, ry, rx + angle_offset, ry + length), fill=(255, 255, 255, opacity), width=random.randint(1, 2))
         
         try:
             f1 = ImageFont.truetype("PritiMusic/assets/font.ttf", 65)
@@ -63,35 +73,54 @@ async def get_thumb(videoid, user_id, user_name):
         except:
             f1 = f2 = br = ImageFont.load_default()
 
+        # YouTube Thumbnail & User Profile
         yt_img = circle(bg.resize((500, 500)))
-        background.paste(yt_img, (80, 200))
+        background.paste(yt_img, (80, 200), yt_img) # mask passed to keep it perfectly round over rain
         
         u_photo = await download_user_photo(user_id)
         if u_photo:
             u_img = circle(Image.open(u_photo).resize((450, 450)))
-            background.paste(u_img, (1350, 215))
+            background.paste(u_img, (1350, 215), u_img)
 
+        # Texts
         draw.text((650, 300), (title[:22] + "...") if len(title) > 22 else title, fill="white", font=f1)
         draw.text((650, 400), f"Artist: {channel}", fill=(220, 220, 220), font=f2)
-        
-        # बदलाव 1: Duration को Views के नीचे कर दिया गया है
         draw.text((650, 460), f"Views: {views}", fill=(190, 190, 190), font=f2)
         draw.text((650, 520), f"Duration: {duration}", fill=(190, 190, 190), font=f2)
 
-        # बदलाव 2 & 3: Wave को बीच से (Up-Down) और अलग-अलग कलर का किया गया है
-        center_y = 750 # वेव की सेंटर लाइन
-        for i in range(40):
-            h = random.randint(10, 60) # वेव की ऊँचाई (ऊपर और नीचे)
+        # --- UPDATED: Thinner and More Attractive Audio Wave ---
+        center_y = 750
+        num_bars = 90  # More bars for a smoother look
+        bar_width = 8   # Thinner bars
+        spacing = 14    # Gap between bars
+        start_x = 350   # Shifted to fit nicely in the middle
+        
+        for i in range(num_bars):
+            # Creating a varied wave effect (some tall, some short)
+            if i % 5 == 0:
+                h = random.randint(40, 80)
+            else:
+                h = random.randint(10, 45)
+                
             r = random.randint(100, 255)
             g = random.randint(100, 255)
-            b = random.randint(150, 255)
-            # सेंटर से 'h' पिक्सल ऊपर और 'h' पिक्सल नीचे ड्रा होगा
-            draw.rounded_rectangle((140 + i*40, center_y - h, 170 + i*40, center_y + h), radius=10, fill=(r, g, b))
+            b = random.randint(200, 255) # Tilted towards blue/cyan for a cooler look
+            
+            x1 = start_x + (i * spacing)
+            x2 = x1 + bar_width
+            
+            # Stop drawing if it goes out of card bounds
+            if x2 > 1800:
+                break
+                
+            draw.rounded_rectangle((x1, center_y - h, x2, center_y + h), radius=4, fill=(r, g, b, 200))
 
+        # Play Button icon (unchanged)
         draw.ellipse((930, 830, 990, 890), outline="white", width=4)
         draw.rectangle((950, 845, 960, 875), fill="white")
         draw.rectangle((965, 845, 975, 875), fill="white")
 
+        # Footer Texts
         draw_text_with_glow(draw, (80, 975), "BETA BOT HUB", br, (132, 224, 240), (0, 255, 255, 100))
         draw_text_with_glow(draw, (1480, 975), "THE SHIV", br, (255, 60, 160), (255, 0, 170, 100))
 
