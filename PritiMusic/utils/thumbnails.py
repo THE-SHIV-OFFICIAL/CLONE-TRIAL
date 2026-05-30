@@ -3,7 +3,7 @@ import re
 import random
 import aiofiles
 import aiohttp
-import colorsys  # ✅ ADDED for Rainbow Color Math
+import colorsys
 from PIL import (Image, ImageDraw, ImageFilter, ImageFont, ImageOps)
 from py_yt import VideosSearch
 from PritiMusic import app
@@ -23,28 +23,6 @@ def draw_text_with_glow(draw, position, text, font, fill, glow_fill):
     for dx, dy in [(-3, 0), (3, 0), (0, -3), (0, 3)]:
         draw.text((x + dx, y + dy), text, font=font, fill=glow_fill)
     draw.text((x, y), text, font=font, fill=fill)
-
-def draw_premium_bubble(draw, x, y, size, max_opacity):
-    # Base bubble (light cyan transparent fill with solid white/cyan outline)
-    draw.ellipse((x, y, x + size, y + size), 
-                 fill=(0, 200, 255, max_opacity // 5), 
-                 outline=(255, 255, 255, max_opacity), 
-                 width=max(1, size // 15))
-    
-    # 3D Highlight Curve (Top Left)
-    offset = size * 0.15
-    hl_size = size * 0.7
-    draw.arc((x + offset, y + offset, x + offset + hl_size, y + offset + hl_size), 
-             start=180, end=270, 
-             fill=(255, 255, 255, max_opacity), 
-             width=max(1, int(size * 0.08)))
-    
-    # Small Reflection Dot (Bottom Right)
-    dot_x = x + size * 0.75
-    dot_y = y + size * 0.75
-    dot_r = max(1, size * 0.06)
-    draw.ellipse((dot_x, dot_y, dot_x + dot_r, dot_y + dot_r), 
-                 fill=(255, 255, 255, max_opacity))
 
 async def download_user_photo(user_id):
     try:
@@ -80,20 +58,15 @@ async def get_thumb(videoid, user_id, user_name):
         # Card Background
         draw.rounded_rectangle((40, 40, 1880, 940), radius=60, fill=(10, 25, 40, 140), outline=(0, 200, 255, 180), width=6)
         
-        # --- WATER DEPTH (Out of Focus Bubbles) ---
-        for _ in range(15): 
-            bx = random.randint(60, 1700)
-            by = random.randint(60, 800)
-            size = random.randint(80, 250)
-            draw.ellipse((bx, by, bx + size, by + size), fill=(0, 150, 255, 12))
-
-        # --- FOREGROUND SHARP 3D BUBBLES ---
-        for _ in range(50): 
-            bx = random.randint(60, 1800)
-            by = random.randint(60, 850)
-            size = random.randint(15, 60)
-            opacity = random.randint(100, 220)
-            draw_premium_bubble(draw, bx, by, size, opacity)
+        # --- NEW: RAIN EFFECT ---
+        for _ in range(300):
+            rx = random.randint(0, 1920)
+            ry = random.randint(0, 1080)
+            length = random.randint(10, 30)
+            # Slanted white lines with variable transparency
+            draw.line([(rx, ry), (rx + 5, ry + length)], 
+                      fill=(255, 255, 255, random.randint(20, 70)), 
+                      width=2)
         
         try:
             f1 = ImageFont.truetype("PritiMusic/assets/font.ttf", 65)
@@ -117,7 +90,7 @@ async def get_thumb(videoid, user_id, user_name):
         draw.text((650, 460), f"Views: {views}", fill=(190, 190, 190), font=f2)
         draw.text((650, 520), f"Duration: {duration}", fill=(190, 190, 190), font=f2)
 
-        # --- ✅ NEW: RAINBOW NEON AUDIO WAVE (Matches Reference Image) ---
+        # --- RAINBOW NEON AUDIO WAVE ---
         center_y = 750
         num_bars = 90
         bar_width = 6   
@@ -125,37 +98,19 @@ async def get_thumb(videoid, user_id, user_name):
         start_x = 350
         
         for i in range(num_bars):
-            if i % 5 == 0:
-                h = random.randint(40, 80)
-            else:
-                h = random.randint(10, 45)
-            
+            h = random.randint(40, 80) if i % 5 == 0 else random.randint(10, 45)
             x1 = start_x + (i * spacing)
             x2 = x1 + bar_width
-            
-            if x2 > 1800:
-                break
+            if x2 > 1800: break
                 
-            # Calculates the Rainbow Color mapping exactly like the image: 
-            # Blue -> Purple -> Pink -> Red -> Yellow -> Green
             hue = 0.60 + (i / num_bars) * 0.75
-            if hue > 1.0:
-                hue -= 1.0
+            if hue > 1.0: hue -= 1.0
             r, g, b = [int(c * 255) for c in colorsys.hsv_to_rgb(hue, 1.0, 1.0)]
             
-            # LAYER 1: Massive Outer Glow
             draw.rounded_rectangle((x1 - 8, center_y - h - 8, x2 + 8, center_y + h + 8), radius=8, fill=(r, g, b, 15))
-            
-            # LAYER 2: Wide Spread Glow
             draw.rounded_rectangle((x1 - 4, center_y - h - 4, x2 + 4, center_y + h + 4), radius=6, fill=(r, g, b, 45))
-            
-            # LAYER 3: Intense Inner Glow
             draw.rounded_rectangle((x1 - 1, center_y - h - 1, x2 + 1, center_y + h + 1), radius=4, fill=(r, g, b, 120))
-            
-            # LAYER 4: Bright White Sharp Core (Just like the reference image)
-            core_x1 = x1 + 2
-            core_x2 = x2 - 2
-            draw.rounded_rectangle((core_x1, center_y - h, core_x2, center_y + h), radius=2, fill=(255, 255, 255, 255))
+            draw.rounded_rectangle((x1 + 2, center_y - h, x2 - 2, center_y + h), radius=2, fill=(255, 255, 255, 255))
 
         # Play Button icon
         draw.ellipse((930, 830, 990, 890), outline="white", width=4)
