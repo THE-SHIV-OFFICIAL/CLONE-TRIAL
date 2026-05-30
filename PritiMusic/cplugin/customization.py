@@ -9,6 +9,14 @@ from PritiMusic.utils.database.clonedb import (
     get_owner_id_from_db
 )
 
+# Branding Footer
+FOOTER = (
+    "\n\n━━━━━━━━━━━━━━━━━━\n"
+    "✨ **Start customizing your bot now!**\n"
+    "📢 Join: @betabot_hub\n"
+    "💬 Support: @betabot_support"
+)
+
 # --- HELPER FUNCTIONS ---
 
 async def is_clone_owner(client: Client, message: Message):
@@ -25,7 +33,6 @@ async def is_clone_owner(client: Client, message: Message):
 
 async def add_to_random_list(bot_id, type_key, new_value):
     current_data = await get_clone_search_type(bot_id, type_key)
-    
     if current_data:
         if new_value in current_data:
             return False 
@@ -36,144 +43,82 @@ async def add_to_random_list(bot_id, type_key, new_value):
     await set_clone_search_type(bot_id, type_key, final_value)
     return True
 
-# ==========================================
-#              SETTING COMMANDS
-# ==========================================
+# --- SETTING COMMANDS ---
 
-# --- 1. TEXT & EMOJI ---
 @Client.on_message(filters.command(["setplaytext", "addplaytext"]))
 async def set_play_text(client, message: Message):
-    if not await is_clone_owner(client, message):
-        return
-
-    if len(message.command) < 2:
-        return await message.reply_text("Usage: /setplaytext <Text/Emoji>")
+    if not await is_clone_owner(client, message): return
+    if len(message.command) < 2: return await message.reply_text("Usage: /setplaytext <Text/Emoji>")
     
     text = message.text.split(None, 1)[1]
-    bot_id = client.me.id
-    
-    await add_to_random_list(bot_id, "text", text)
-    await message.reply_text(f"✅ **Added to Random List:**\n\n{text}")
+    await add_to_random_list(client.me.id, "text", text)
+    await message.reply_text(f"✅ **Added to Random List:**\n\n{text}" + FOOTER)
 
-# --- 2. STICKER ---
 @Client.on_message(filters.command(["setplaysticker", "addplaysticker"]))
 async def set_play_sticker(client, message: Message):
-    if not await is_clone_owner(client, message):
-        return
-
+    if not await is_clone_owner(client, message): return
     if not message.reply_to_message or not message.reply_to_message.sticker:
         return await message.reply_text("Usage: Reply to a Sticker with /setplaysticker")
     
-    file_id = message.reply_to_message.sticker.file_id
-    bot_id = client.me.id
-    
-    await add_to_random_list(bot_id, "sticker", file_id)
-    await message.reply_text("✅ **Sticker Added to Random List!**")
+    await add_to_random_list(client.me.id, "sticker", message.reply_to_message.sticker.file_id)
+    await message.reply_text("✅ **Sticker Added to Random List!**" + FOOTER)
 
-# --- 3. ANIMATION (GIF) ---
 @Client.on_message(filters.command(["setplayanimation", "addplayanimation"]))
 async def set_play_gif(client, message: Message):
-    if not await is_clone_owner(client, message):
-        return
-
+    if not await is_clone_owner(client, message): return
     if not message.reply_to_message or not message.reply_to_message.animation:
         return await message.reply_text("Usage: Reply to a GIF with /setplayanimation")
     
-    file_id = message.reply_to_message.animation.file_id
     bot_id = client.me.id
-    
-    await add_to_random_list(bot_id, "animation", file_id)
-    
-    # Auto-Hide Text
-    current_text = await get_clone_search_type(bot_id, "text")
-    if not current_text:
-        await set_clone_search_type(bot_id, "text", "⠀")
-        
-    await message.reply_text("✅ **GIF Added to Random List!**")
+    await add_to_random_list(bot_id, "animation", message.reply_to_message.animation.file_id)
+    if not await get_clone_search_type(bot_id, "text"): await set_clone_search_type(bot_id, "text", "⠀")
+    await message.reply_text("✅ **GIF Added to Random List!**" + FOOTER)
 
-# --- 4. VIDEO (MP4) ---
 @Client.on_message(filters.command(["setplayvideo", "addplayvideo"]))
 async def set_play_video(client, message: Message):
-    if not await is_clone_owner(client, message):
-        return
-
+    if not await is_clone_owner(client, message): return
     if not message.reply_to_message or not message.reply_to_message.video:
         return await message.reply_text("Usage: Reply to a Video with /setplayvideo")
     
-    file_id = message.reply_to_message.video.file_id
     bot_id = client.me.id
-    
-    await add_to_random_list(bot_id, "video", file_id)
-    
-    # Auto-Hide Text
-    current_text = await get_clone_search_type(bot_id, "text")
-    if not current_text:
-        await set_clone_search_type(bot_id, "text", "⠀")
-    
-    await message.reply_text("✅ **Video Added to Random List!**\n(Searching text hidden automatically)")
+    await add_to_random_list(bot_id, "video", message.reply_to_message.video.file_id)
+    if not await get_clone_search_type(bot_id, "text"): await set_clone_search_type(bot_id, "text", "⠀")
+    await message.reply_text("✅ **Video Added to Random List!**\n(Searching text hidden automatically)" + FOOTER)
 
-# --- 5. PHOTO (IMAGE) ---
 @Client.on_message(filters.command(["setplayphoto", "addplayphoto"]))
 async def set_play_photo(client, message: Message):
-    if not await is_clone_owner(client, message):
-        return
-
+    if not await is_clone_owner(client, message): return
     if not message.reply_to_message or not message.reply_to_message.photo:
         return await message.reply_text("Usage: Reply to a Photo with /setplayphoto")
     
-    file_id = message.reply_to_message.photo.file_id
     bot_id = client.me.id
-    
-    await add_to_random_list(bot_id, "photo", file_id)
-    
-    # Auto-Hide Text
-    current_text = await get_clone_search_type(bot_id, "text")
-    if not current_text:
-        await set_clone_search_type(bot_id, "text", "⠀")
-    
-    await message.reply_text("✅ **Photo Added to Random List!**")
+    await add_to_random_list(bot_id, "photo", message.reply_to_message.photo.file_id)
+    if not await get_clone_search_type(bot_id, "text"): await set_clone_search_type(bot_id, "text", "⠀")
+    await message.reply_text("✅ **Photo Added to Random List!**" + FOOTER)
 
-# --- 6. CAPTION SETTING ---
 @Client.on_message(filters.command("setstreamtext"))
 async def set_stream_text(client, message: Message):
-    if not await is_clone_owner(client, message):
-        return
-
+    if not await is_clone_owner(client, message): return
     if len(message.command) < 2:
         return await message.reply_text(
             "**Usage:** /setstreamtext <Your Caption>\n\n"
-            "**Available Variables:**\n"
-            "`{1}` : Song Name\n"
-            "`{2}` : Duration\n"
-            "`{3}` : Requested By\n\n"
-            "**Example:**\n"
-            "`/setstreamtext 🎸 Playing: {1} | ⏳ Time: {2}`"
+            "**Variables:** `{1}`: Song, `{2}`: Time, `{3}`: Requester" + FOOTER
         )
     
     text = message.text.split(None, 1)[1]
-    bot_id = client.me.id
-    
-    await set_clone_stream_caption(bot_id, text)
-    await message.reply_text(f"✅ **Stream Caption Updated:**\n\n{text}")
+    await set_clone_stream_caption(client.me.id, text)
+    await message.reply_text(f"✅ **Stream Caption Updated:**\n\n{text}" + FOOTER)
 
-# ==========================================
-#              DELETE / RESET COMMANDS
-# ==========================================
+# --- DELETE / RESET ---
 
 @Client.on_message(filters.command(["delplay", "resetplay", "delplaymode"]))
 async def delete_play_mode(client, message: Message):
-    if not await is_clone_owner(client, message):
-        return
-        
-    bot_id = client.me.id
-    await delete_clone_search_type(bot_id)
-    await message.reply_text("🗑️ **Search Mode Reset!**\nAll saved random lists cleared.")
+    if not await is_clone_owner(client, message): return
+    await delete_clone_search_type(client.me.id)
+    await message.reply_text("🗑️ **Search Mode Reset!** All saved random lists cleared." + FOOTER)
 
 @Client.on_message(filters.command(["delstreamtext", "resetstreamtext"]))
 async def delete_stream_text_cmd(client, message: Message):
-    if not await is_clone_owner(client, message):
-        return
-        
-    bot_id = client.me.id
-    await delete_clone_stream_caption(bot_id)
-    await message.reply_text("🗑️ **Stream Caption Reset!**")
+    if not await is_clone_owner(client, message): return
+    await delete_clone_stream_caption(client.me.id)
+    await message.reply_text("🗑️ **Stream Caption Reset!**" + FOOTER)
