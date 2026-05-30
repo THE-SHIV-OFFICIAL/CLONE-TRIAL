@@ -28,6 +28,10 @@ async def skip(cli, message: Message, _, chat_id):
     # ✅ FIX: Get Clone Bot Info dynamically
     a = await cli.get_me()
     
+    # ✅ Safe fallback for User ID and Name (prevents crash if skipped by an Anonymous Admin)
+    user_id = message.from_user.id if message.from_user else a.id
+    user_name = message.from_user.first_name if message.from_user else "Admin"
+
     C_BOT_SUPPORT_CHAT = await get_cloned_support_chat(a.id)
     C_SUPPORT_CHAT = f"https://t.me/{C_BOT_SUPPORT_CHAT}"
     
@@ -56,7 +60,7 @@ async def skip(cli, message: Message, _, chat_id):
                                 try:
                                     await message.reply_text(
                                         text=_["admin_6"].format(
-                                            message.from_user.mention,
+                                            message.from_user.mention if message.from_user else "Admin",
                                             message.chat.title,
                                         ),
                                         reply_markup=close_markup(_),
@@ -83,7 +87,7 @@ async def skip(cli, message: Message, _, chat_id):
             if not check:
                 await message.reply_text(
                     text=_["admin_6"].format(
-                        message.from_user.mention, message.chat.title
+                        message.from_user.mention if message.from_user else "Admin", message.chat.title
                     ),
                     reply_markup=close_markup(_),
                 )
@@ -95,7 +99,7 @@ async def skip(cli, message: Message, _, chat_id):
             try:
                 await message.reply_text(
                     text=_["admin_6"].format(
-                        message.from_user.mention, message.chat.title
+                        message.from_user.mention if message.from_user else "Admin", message.chat.title
                     ),
                     reply_markup=close_markup(_),
                 )
@@ -133,7 +137,10 @@ async def skip(cli, message: Message, _, chat_id):
         except:
             return await message.reply_text(_["call_6"])
         button = stream_markup2(_, chat_id)
-        img = await get_thumb(videoid)
+        
+        # ✅ FIX 1: Passed user_id and user_name
+        img = await get_thumb(videoid, user_id, user_name)
+        
         run = await message.reply_photo(
             photo=img,
             caption=_["stream_1"].format(
@@ -166,7 +173,10 @@ async def skip(cli, message: Message, _, chat_id):
         except:
             return await mystic.edit_text(_["call_6"])
         button = stream_markup(_, chat_id)
-        img = await get_thumb(videoid)
+        
+        # ✅ FIX 2: Passed user_id and user_name
+        img = await get_thumb(videoid, user_id, user_name)
+        
         run = await message.reply_photo(
             photo=img,
             caption=_["stream_1"].format(
@@ -265,7 +275,10 @@ async def skip(cli, message: Message, _, chat_id):
             db[chat_id][0]["markup"] = "tg"
         else:
             button = stream_markup(_, chat_id)
-            img = await get_thumb(videoid)
+            
+            # ✅ FIX 3: Passed user_id and user_name
+            img = await get_thumb(videoid, user_id, user_name)
+            
             run = await message.reply_photo(
                 photo=img,
                 caption=_["stream_1"].format(
