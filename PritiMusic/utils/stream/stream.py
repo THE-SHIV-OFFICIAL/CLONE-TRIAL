@@ -89,7 +89,7 @@ async def stream(
                 button = stream_markup(_, chat_id)
                 run = await app.send_photo(
                     original_chat_id, photo=img, caption=_["stream_1"].format(f"https://t.me/{app.username}?start=info_{vidid}", title[:23], duration_min, user_name),
-                    reply_markup=InlineKeyboardMarkup(button), has_spoiler=False
+                    reply_markup=InlineKeyboardMarkup(button)
                 )
                 db[chat_id][0]["mystic"] = run
                 db[chat_id][0]["markup"] = "stream"
@@ -99,7 +99,7 @@ async def stream(
             lines = msg.count("\n")
             car = os.linesep.join(msg.split(os.linesep)[:17]) if lines >= 17 else msg
             carbon = await Carbon.generate(car, random.randint(100, 10000000))
-            return await app.send_photo(original_chat_id, photo=carbon, caption=_["play_21"].format(position, link), reply_markup=close_markup(_), has_spoiler=False)
+            return await app.send_photo(original_chat_id, photo=carbon, caption=_["play_21"].format(position, link), reply_markup=close_markup(_))
 
     elif streamtype == "youtube":
         link, vidid, title, duration_min, thumbnail = result["link"], result["vidid"], (result["title"]).title(), result["duration_min"], result["thumb"]
@@ -122,7 +122,7 @@ async def stream(
             img = await get_thumb(vidid, user_id, app)
             if not img: img = get_random_img(config.PLAYLIST_IMG_URL)
 
-            run = await app.send_photo(original_chat_id, photo=img, caption=_["stream_1"].format(f"https://t.me/{app.username}?start=info_{vidid}", title[:23], duration_min, user_name), reply_markup=InlineKeyboardMarkup(stream_markup(_, chat_id)), has_spoiler=False)
+            run = await app.send_photo(original_chat_id, photo=img, caption=_["stream_1"].format(f"https://t.me/{app.username}?start=info_{vidid}", title[:23], duration_min, user_name), reply_markup=InlineKeyboardMarkup(stream_markup(_, chat_id)))
             db[chat_id][0]["mystic"] = run
             db[chat_id][0]["markup"] = "stream"
 
@@ -145,7 +145,7 @@ async def stream(
             img = await get_thumb(vidid, user_id, app)
             if not img: img = get_random_img(config.PLAYLIST_IMG_URL)
 
-            run = await app.send_photo(original_chat_id, photo=img, caption=_["stream_1"].format(f"https://t.me/{app.username}?start=info_{vidid}", title[:23], duration_min, user_name), reply_markup=InlineKeyboardMarkup(stream_markup(_, chat_id)), has_spoiler=False)
+            run = await app.send_photo(original_chat_id, photo=img, caption=_["stream_1"].format(f"https://t.me/{app.username}?start=info_{vidid}", title[:23], duration_min, user_name), reply_markup=InlineKeyboardMarkup(stream_markup(_, chat_id)))
             db[chat_id][0]["mystic"] = run
             db[chat_id][0]["markup"] = "tg"
 
