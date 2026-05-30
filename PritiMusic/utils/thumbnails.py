@@ -51,22 +51,27 @@ async def get_thumb(videoid, user_id, user_name):
                 await f.write(await resp.read())
                 await f.close()
 
+        # Base Image and Gaussian Blur
         bg = Image.open(f"cache/temp_{videoid}.jpg").convert("RGBA").resize((1920, 1080))
         background = bg.filter(ImageFilter.GaussianBlur(25)).point(lambda p: p * 0.35)
-        draw = ImageDraw.Draw(background, "RGBA")
-
-        # Card Background
-        draw.rounded_rectangle((40, 40, 1880, 940), radius=60, fill=(10, 25, 40, 140), outline=(0, 200, 255, 180), width=6)
         
-        # --- NEW: RAIN EFFECT ---
+        # --- GLASS CARD EFFECT ---
+        card_rect = (40, 40, 1880, 940)
+        # Crop the original bg, blur it, and overlay a semi-transparent layer
+        glass_bg = bg.crop(card_rect).filter(ImageFilter.GaussianBlur(30))
+        overlay = Image.new("RGBA", (1840, 900), (255, 255, 255, 40))
+        glass_bg = Image.alpha_composite(glass_bg.convert("RGBA"), overlay)
+        background.paste(glass_bg, (40, 40))
+        
+        draw = ImageDraw.Draw(background, "RGBA")
+        draw.rounded_rectangle(card_rect, radius=60, outline=(132, 224, 240, 200), width=6)
+        
+        # --- RAIN EFFECT ---
         for _ in range(300):
-            rx = random.randint(0, 1920)
-            ry = random.randint(0, 1080)
+            rx = random.randint(50, 1870)
+            ry = random.randint(50, 930)
             length = random.randint(10, 30)
-            # Slanted white lines with variable transparency
-            draw.line([(rx, ry), (rx + 5, ry + length)], 
-                      fill=(255, 255, 255, random.randint(20, 70)), 
-                      width=2)
+            draw.line([(rx, ry), (rx + 5, ry + length)], fill=(255, 255, 255, 50), width=1)
         
         try:
             f1 = ImageFont.truetype("PritiMusic/assets/font.ttf", 65)
