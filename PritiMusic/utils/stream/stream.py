@@ -1,152 +1,80 @@
 import os
 import random
+import logging
 from typing import Union
-
 from pyrogram.types import InlineKeyboardMarkup
-
 import config
 from PritiMusic import Carbon, YouTube, app
 from PritiMusic.core.call import Lucky
 from PritiMusic.misc import db
-from PritiMusic.utils.database import add_active_video_chat, is_active_chat
+from PritiMusic.utils.database import is_active_chat
 from PritiMusic.utils.exceptions import AssistantErr
 from PritiMusic.utils.inline import aq_markup, close_markup, stream_markup
-from PritiMusic.utils.stream.queue import put_queue, put_queue_index
+from PritiMusic.utils.stream.queue import put_queue
 from PritiMusic.utils.pastebin import LuckyBin
-# Assuming your helper is imported from this module
 from PritiMusic.utils.thumbnails import get_thumb 
 
-# ✅ Helper to get Random Image safely
+# Helper to safely get Random Image
 def get_random_img(img_list):
     if img_list:
-        if isinstance(img_list, list):
-            return random.choice(img_list)
-        return img_list
+        return random.choice(img_list) if isinstance(img_list, list) else img_list
     return "https://telegra.ph/file/2e3d368e77c449c287430.jpg"
 
-async def stream(
-    _,
-    mystic,
-    user_id,
-    result,
-    chat_id,
-    user_name,
-    original_chat_id,
-    video: Union[bool, str] = None,
-    streamtype: Union[bool, str] = None,
-    spotify: Union[bool, str] = None,
-    forceplay: Union[bool, str] = None,
-):
-    if not result:
-        return
-    if forceplay:
-        await Lucky.force_stop_stream(chat_id)
+# Helper to safely update the queue
+def safe_update_mystic(chat_id, run_msg, markup_type):
+    if chat_id in db and isinstance(db[chat_id], list) and len(db[chat_id]) > 0:
+        db[chat_id][0]["mystic"] = run_msg
+        db[chat_id][0]["markup"] = markup_type
+    else:
+        logging.warning(f"Queue empty for {chat_id}, skipping mystic update.")
+
+async def stream(_, mystic, user_id, result, chat_id, user_name, original_chat_id, video=None, streamtype=None, spotify=None, forceplay=None):
+    if not result: return
+    if forceplay: await Lucky.force_stop_stream(chat_id)
 
     if streamtype == "playlist":
         msg = f"{_['play_19']}\n\n"
         count = 0
         for search in result:
-            if int(count) == config.PLAYLIST_FETCH_LIMIT:
-                continue
+            if count == config.PLAYLIST_FETCH_LIMIT: continue
             try:
-                (
-                    title,
-                    duration_min,
-                    duration_sec,
-                    thumbnail,
-                    vidid,
-                ) = await YouTube.details(search, False if spotify else True)
-            except:
-                continue
-            if str(duration_min) == "None":
-                continue
-            if duration_sec > config.DURATION_LIMIT:
-                continue
+                title, duration_min, duration_sec, thumbnail, vidid = await YouTube.details(search, not spotify)
+            except: continue
+            if str(duration_min) == "None" or duration_sec > config.DURATION_LIMIT: continue
+            
             if await is_active_chat(chat_id):
-                await put_queue(
-                    chat_id, original_chat_id, f"vid_{vidid}", title, duration_min, user_name, vidid, user_id, "video" if video else "audio",
-                )
-                position = len(db.get(chat_id)) - 1
+                await put_queue(chat_id, original_chat_id, f"vid_{vidid}", title, duration_min, user_name, vidid, user_id, "video" if video else "audio")
                 count += 1
-                msg += f"{count}. {title[:70]}\n{_['play_20']} {position}\n\n"
+                msg += f"{count}. {title[:70]}\n\n"
             else:
-                if not forceplay:
-                    db[chat_id] = []
-                status = True if video else None
-                try:
-                    file_path, direct = await YouTube.download(vidid, mystic, video=status, videoid=True)
-                except:
-                    raise AssistantErr(_["play_14"])
-                await Lucky.join_call(chat_id, original_chat_id, file_path, video=status, image=thumbnail)
-                await put_queue(
-                    chat_id, original_chat_id, file_path if direct else f"vid_{vidid}", title, duration_min, user_name, vidid, user_id, "video" if video else "audio", forceplay=forceplay,
-                )
+                if not forceplay: db[chat_id] = []
+                file_path, direct = await YouTube.download(vidid, mystic, video=video, videoid=True)
+                await Lucky.join_call(chat_id, original_chat_id, file_path, video=video, image=thumbnail)
+                await put_queue(chat_id, original_chat_id, file_path if direct else f"vid_{vidid}", title, duration_min, user_name, vidid, user_id, "video" if video else "audio", forceplay=forceplay)
                 
-                # FIXED: Added required arguments
-                img = await get_thumb(vidid, user_id, app)
-                if not img: img = get_random_img(config.PLAYLIST_IMG_URL)
-
-                button = stream_markup(_, chat_id)
-                run = await app.send_photo(
-                    original_chat_id, photo=img, caption=_["stream_1"].format(f"https://t.me/{app.username}?start=info_{vidid}", title[:23], duration_min, user_name),
-                    reply_markup=InlineKeyboardMarkup(button)
-                )
-                db[chat_id][0]["mystic"] = run
-                db[chat_id][0]["markup"] = "stream"
+                img = await get_thumb(vidid, user_id, app) or get_random_img(config.PLAYLIST_IMG_URL)
+                run = await app.send_photo(original_chat_id, photo=img, caption=_["stream_1"].format(f"https://t.me/{app.username}?start=info_{vidid}", title[:23], duration_min, user_name), reply_markup=InlineKeyboardMarkup(stream_markup(_, chat_id)))
+                safe_update_mystic(chat_id, run, "stream")
+        
         if count == 0: return
-        else:
-            link = await LuckyBin(msg)
-            lines = msg.count("\n")
-            car = os.linesep.join(msg.split(os.linesep)[:17]) if lines >= 17 else msg
-            carbon = await Carbon.generate(car, random.randint(100, 10000000))
-            return await app.send_photo(original_chat_id, photo=carbon, caption=_["play_21"].format(position, link), reply_markup=close_markup(_))
+        link = await LuckyBin(msg)
+        return await app.send_photo(original_chat_id, photo=await Carbon.generate(msg[:500], random.randint(100, 10000000)), caption=_["play_21"].format(len(db.get(chat_id))-1, link), reply_markup=close_markup(_))
 
-    elif streamtype == "youtube":
-        link, vidid, title, duration_min, thumbnail = result["link"], result["vidid"], (result["title"]).title(), result["duration_min"], result["thumb"]
+    elif streamtype in ["youtube", "live"]:
+        vidid = result["vidid"]
+        title = result["title"].title()
+        thumbnail = result["thumb"]
         status = True if video else None
-        try:
-            file_path, direct = await YouTube.download(vidid, mystic, videoid=True, video=status)
-        except:
-            raise AssistantErr(_["play_14"])
         
         if await is_active_chat(chat_id):
-            await put_queue(chat_id, original_chat_id, file_path if direct else f"vid_{vidid}", title, duration_min, user_name, vidid, user_id, "video" if video else "audio")
-            position = len(db.get(chat_id)) - 1
-            await app.send_message(chat_id=original_chat_id, text=_["queue_4"].format(position, title[:27], duration_min, user_name), reply_markup=InlineKeyboardMarkup(aq_markup(_, chat_id)))
+            await put_queue(chat_id, original_chat_id, f"vid_{vidid}" if streamtype == "youtube" else f"live_{vidid}", title, result["duration_min"], user_name, vidid, user_id, "video" if video else "audio")
+            await app.send_message(chat_id=original_chat_id, text=_["queue_4"].format(len(db.get(chat_id))-1, title[:27], result["duration_min"], user_name), reply_markup=InlineKeyboardMarkup(aq_markup(_, chat_id)))
         else:
             if not forceplay: db[chat_id] = []
+            file_path = (await YouTube.video(result["link"]))[1] if streamtype == "live" else (await YouTube.download(vidid, mystic, videoid=True, video=status))[0]
             await Lucky.join_call(chat_id, original_chat_id, file_path, video=status, image=thumbnail)
-            await put_queue(chat_id, original_chat_id, file_path if direct else f"vid_{vidid}", title, duration_min, user_name, vidid, user_id, "video" if video else "audio", forceplay=forceplay)
+            await put_queue(chat_id, original_chat_id, f"vid_{vidid}" if streamtype == "youtube" else f"live_{vidid}", title, result["duration_min"], user_name, vidid, user_id, "video" if video else "audio", forceplay=forceplay)
             
-            # FIXED: Added required arguments
-            img = await get_thumb(vidid, user_id, app)
-            if not img: img = get_random_img(config.PLAYLIST_IMG_URL)
-
-            run = await app.send_photo(original_chat_id, photo=img, caption=_["stream_1"].format(f"https://t.me/{app.username}?start=info_{vidid}", title[:23], duration_min, user_name), reply_markup=InlineKeyboardMarkup(stream_markup(_, chat_id)))
-            db[chat_id][0]["mystic"] = run
-            db[chat_id][0]["markup"] = "stream"
-
-    elif streamtype == "live":
-        link, vidid, title, thumbnail = result["link"], result["vidid"], (result["title"]).title(), result["thumb"]
-        duration_min = "Live Track"
-        status = True if video else None
-        if await is_active_chat(chat_id):
-            await put_queue(chat_id, original_chat_id, f"live_{vidid}", title, duration_min, user_name, vidid, user_id, "video" if video else "audio")
-            position = len(db.get(chat_id)) - 1
-            await app.send_message(chat_id=original_chat_id, text=_["queue_4"].format(position, title[:27], duration_min, user_name), reply_markup=InlineKeyboardMarkup(aq_markup(_, chat_id)))
-        else:
-            if not forceplay: db[chat_id] = []
-            n, file_path = await YouTube.video(link)
-            if n == 0: raise AssistantErr(_["str_3"])
-            await Lucky.join_call(chat_id, original_chat_id, file_path, video=status, image=thumbnail if thumbnail else None)
-            await put_queue(chat_id, original_chat_id, f"live_{vidid}", title, duration_min, user_name, vidid, user_id, "video" if video else "audio", forceplay=forceplay)
-            
-            # FIXED: Added required arguments
-            img = await get_thumb(vidid, user_id, app)
-            if not img: img = get_random_img(config.PLAYLIST_IMG_URL)
-
-            run = await app.send_photo(original_chat_id, photo=img, caption=_["stream_1"].format(f"https://t.me/{app.username}?start=info_{vidid}", title[:23], duration_min, user_name), reply_markup=InlineKeyboardMarkup(stream_markup(_, chat_id)))
-            db[chat_id][0]["mystic"] = run
-            db[chat_id][0]["markup"] = "tg"
-
-    # ... (Other streamtypes: soundcloud, telegram, index follow similar logic)
+            img = await get_thumb(vidid, user_id, app) or get_random_img(config.PLAYLIST_IMG_URL)
+            run = await app.send_photo(original_chat_id, photo=img, caption=_["stream_1"].format(f"https://t.me/{app.username}?start=info_{vidid}", title[:23], result["duration_min"], user_name), reply_markup=InlineKeyboardMarkup(stream_markup(_, chat_id)))
+            safe_update_mystic(chat_id, run, "stream" if streamtype == "youtube" else "tg")
