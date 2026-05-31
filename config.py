@@ -13,10 +13,6 @@ API_HASH = getenv("API_HASH")
 BOT_TOKEN = getenv("BOT_TOKEN")
 BOT_ID = getenv("BOT_ID")
 
-# --- SHRUTI & YT PROXY CONFIG ---
-SHRUTI_API_URL = "https://api.shrutibots.site"
-SHRUTI_API_KEY = "ShrutiBotsC0WH1GowF2HkGoKv4F3y"
-
 YTPROXY_URL = getenv("YTPROXY_URL", "https://tgapi.xbitcode.com")
 YT_API_KEY = getenv("YT_API_KEY", "xbit_mMngTos5JH-PMdYxnbj-lIVF1I4tBRWh")
 
