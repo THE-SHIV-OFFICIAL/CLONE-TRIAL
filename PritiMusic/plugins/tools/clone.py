@@ -84,6 +84,7 @@ async def clone_txt(client, message, _):
 # --- RESTART BOTS (CRITICAL) ---
 async def restart_bots():
     """यह फंक्शन बॉट स्टार्ट होते ही सभी क्लोन बॉट्स को फिर से लोड करता है."""
+    logging.info("Initiating Clone Bot Restart Sequence...")
     async for bot_data in clonebotdb.find():
         token = bot_data.get("token")
         bot_id = bot_data.get("bot_id")
@@ -104,6 +105,10 @@ async def restart_bots():
             ACTIVE_CLONES[bot_id] = ai
             CLONES.add(bot_id)
             logging.info(f"✅ Restarted Clone: {bot_id}")
+            
+            # Anti-Spam / Rate Limit protection
+            await asyncio.sleep(0.5) 
+            
         except Exception as e:
             logging.error(f"Failed to restart clone {bot_id}: {e}")
 
@@ -122,3 +127,7 @@ async def delete_cloned_bot(client, message):
         await message.reply_text("🗑️ **Bot Removed Successfully.**" + FOOTER)
     else:
         await message.reply_text("❌ **Bot not found.**")
+
+
+# --- START THE CLONES WHEN PLUGIN LOADS ---
+asyncio.create_task(restart_bots())
