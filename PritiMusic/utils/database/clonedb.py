@@ -38,6 +38,10 @@ async def get_owner_id_from_db(bot_id):
     bot_data = await clonebotdb.find_one({"bot_id": to_int(bot_id)})
     return bot_data.get("user_id") if bot_data else None
 
+async def get_clonebot_owner(bot_id):
+    """Legacy wrapper for older plugins expecting this function name."""
+    return await get_owner_id_from_db(bot_id)
+
 async def has_user_cloned_any_bot(user_id: int) -> bool:
     return bool(await clonebotdb.find_one({"user_id": user_id}))
 
