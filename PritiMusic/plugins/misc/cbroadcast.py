@@ -9,7 +9,7 @@ from PritiMusic.utils.database.clonedb import (
     get_all_clones, 
     get_served_chats_clone, 
     get_served_users_clone,
-    get_clonebot_owner
+    get_owner_id_from_db
 )
 from config import API_ID, API_HASH
 
@@ -102,7 +102,7 @@ async def clone_broadcast_handler(client, message):
         # 1. Clone Owner
         if send_owners:
             try:
-                owner = await get_clonebot_owner(bot_id)
+                owner = await get_owner_id_from_db(bot_id)
                 if owner:
                     target_ids.add(int(owner))
             except:
@@ -146,7 +146,7 @@ async def clone_broadcast_handler(client, message):
                 # Check if bot is alive
                 try:
                     await clone_app.get_me()
-                except (AuthKeyUnregistered, UserDeactivated):
+                except (AuthKeyUnregistered, InputUserDeactivated):
                     failed_clones += 1
                     continue # Token expired
 
